@@ -9,7 +9,7 @@ export class BoothResolver {
     // @ts-ignore
     @Query((returns) => [Booth], { nullable: true })
     async getBooths(): Promise<Booth[]> {
-        console.log("BoothResolver: Versuche Abfrage")
+        console.log("BoothResolver: getAll")
         this.booths = await db.query(sql `
             SELECT id, name, hall, fair, added, changed, hid
             FROM fm.booth

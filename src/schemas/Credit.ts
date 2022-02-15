@@ -1,25 +1,25 @@
 import {Field, ObjectType} from 'type-graphql';
 
 @ObjectType()
-export class Booth {
+export class Credit {
     @Field()
     id: string;
 
-    @Field()
-    name: string;
+    @Field({nullable: true})
+    hid: string;
 
     @Field()
-    fair: string;
+    organization: string;
 
     @Field({nullable: true})
-    hall: string;
+    balanceChange: number;
+
+    @Field({nullable: true})
+    meta: string;
 
     @Field({nullable: true})
     added: Date;
 
     @Field({nullable: true})
     changed: Date;
-
-    @Field({nullable: true})
-    hid: string;
 }

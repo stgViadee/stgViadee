@@ -5,10 +5,11 @@ import { buildSchema } from 'type-graphql'
 
 import { TodoResolver } from './resolvers/todoResolver'
 import { BoothResolver } from './resolvers/boothResolver'
+import { AttendanceResolver} from './resolvers/attendanceResolver';
 
 async function main() {
     const schema = await buildSchema({
-        resolvers: [TodoResolver, BoothResolver],
+        resolvers: [TodoResolver, BoothResolver, AttendanceResolver],
         emitSchemaFile: true,
     })
 

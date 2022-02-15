@@ -3,12 +3,19 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+type Attendance {
+  id: String!
+  meeting: String!
+  user: String
+}
+
 type Booth {
-  added: DateTime!
-  changed: DateTime!
+  added: DateTime
+  changed: DateTime
+  fair: String!
   hall: String
-  hid: String!
-  id: Float!
+  hid: String
+  id: String!
   name: String!
 }
 
@@ -22,6 +29,7 @@ type Mutation {
 }
 
 type Query {
+  getAttendances: [Attendance!]
   getBooths: [Booth!]
   getTodos: [Todo!]
 }
