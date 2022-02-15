@@ -27,7 +27,7 @@ export class Image {
     added: Date;
 
     @Field({nullable:true})
-    change: Date;
+    changed: Date;
 
     @Field({nullable:true})
     width: number;
