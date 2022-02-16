@@ -1,8 +1,9 @@
-import {Field, ObjectType} from 'type-graphql';
+import {Field, ID, ObjectType} from 'type-graphql';
+import {User} from './User';
 
 @ObjectType()
 export class Meeting {
-    @Field()
+    @Field(() => ID)
     id: string;
 
     @Field()
@@ -11,7 +12,7 @@ export class Meeting {
     @Field()
     end: Date;
 
-    @Field()
+    @Field({nullable:true})
     title: string;
 
     @Field()
@@ -27,12 +28,12 @@ export class Meeting {
     color: string;
 
     @Field({nullable: true})
-    display: JSON;
+    display: string;
 
     @Field()
     resource: string;
 
-    @Field()
+    @Field(() => User, {nullable:true})
     organizer: string;
 
     @Field()
@@ -46,4 +47,7 @@ export class Meeting {
 
     @Field()
     changed: Date;
+
+    @Field(() => [User], {nullable:true})
+    attendees: [User];
 }

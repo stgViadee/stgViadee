@@ -1,4 +1,5 @@
 import {Field, ObjectType} from 'type-graphql';
+import {User} from './User';
 
 @ObjectType()
 export class Fair {
@@ -14,11 +15,11 @@ export class Fair {
     @Field({nullable:true})
     timezone: string;
 
-    @Field()
-    author: string;
+    @Field(() => User)
+    author: User;
 
     @Field({nullable:true})
-    feature: JSON;
+    feature: string;
 
     @Field()
     organization: string;

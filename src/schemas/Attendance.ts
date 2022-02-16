@@ -1,13 +1,15 @@
-import {Field, ObjectType} from 'type-graphql';
+import {Field, ID, ObjectType} from 'type-graphql';
+import {Meeting} from './Meeting';
+import {User} from './User';
 
 @ObjectType()
 export class Attendance {
-    @Field()
+    @Field(() => ID)
     id: string;
 
-    @Field()
+    @Field(() => Meeting)
     meeting: string;
 
-    @Field({nullable: true})
+    @Field(() => User, {nullable: true})
     user: string;
 }
