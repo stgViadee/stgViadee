@@ -1,4 +1,6 @@
 import { Field, ObjectType } from 'type-graphql'
+import {User} from './User';
+import {Message} from './Message';
 
 @ObjectType()
 export class Conversation{
@@ -11,13 +13,16 @@ export class Conversation{
     @Field({nullable:true})
     changed: Date
 
-    @Field({nullable:true})
+    @Field(() => User, {nullable:true})
     user: string
 
     @Field({nullable:true})
     hid: string
 
-    @Field({nullable:true})
+    @Field(() => User, {nullable:true})
     recipient: string
+
+    @Field(() => Message, {nullable:true})
+    messages: [Message]
 
 }

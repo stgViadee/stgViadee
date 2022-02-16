@@ -1,10 +1,12 @@
 import {Arg, FieldResolver, Maybe, Query, Resolver, Root} from 'type-graphql';
 import {Organization} from '../schemas/Organization';
 import db, {sql} from '../dbconfig/dbconfig';
+import {User} from '../schemas/User';
 
 @Resolver((of) => Organization)
 export class OrganizationResolver {
     private organizations: Organization[] = []
+    private users: User[] = []
 
     @Query((returns) => [Organization], { nullable: true })
     async getOrganizations(): Promise<Organization[]> {
@@ -25,6 +27,16 @@ export class OrganizationResolver {
             where id = ${id}
         `);
         return this.organizations[0];
+    }
+
+    @FieldResolver(is => User, {description: ''})
+    async author(@Root() organization: Organization): Promise<User> {
+        console.log("OrganizationResolver: lade Autor nach")
+        this.users = await db.query(sql`
+            select id,email,password,"hasActiveConnection","lastAuthenticated","createdBy","invitationSent","invitationSentBy","isDisabled",added,changed,"usesAuthEmailProxy",hid,preferences,"emailValidated","hasMobileDevices" from fm.user
+            where id = ${organization.author}
+        `);
+        return this.users[0];
     }
 
 

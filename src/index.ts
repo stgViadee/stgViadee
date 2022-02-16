@@ -8,10 +8,11 @@ import {FairResolver} from './resolvers/FairResolver';
 import {UserResolver} from './resolvers/UserResolver';
 import {MeetingResolver} from './resolvers/MeetingResolver';
 import {CompanyResolver} from './resolvers/CompanyResolver';
+import {UserGroupResolver} from './resolvers/UserGroupResolver';
 
 async function main() {
     const schema = await buildSchema({
-        resolvers: [FairResolver, UserResolver, BoothResolver, MeetingResolver, CompanyResolver],
+        resolvers: [FairResolver, UserResolver, UserGroupResolver, BoothResolver, MeetingResolver, CompanyResolver],
         emitSchemaFile: true,
     });
 

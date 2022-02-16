@@ -1,4 +1,5 @@
 import {Field, ObjectType} from 'type-graphql';
+import {User} from './User';
 
 @ObjectType()
 export class Organization {
@@ -11,7 +12,7 @@ export class Organization {
     @Field({nullable:true})
     avatar: string;
 
-    @Field({nullable:true})
+    @Field(() => User, {nullable:true})
     author: string;
 
     @Field({nullable: true})

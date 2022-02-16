@@ -1,5 +1,6 @@
 import {Field, ObjectType} from 'type-graphql';
 import {User} from './User';
+import {Organization} from './Organization';
 
 @ObjectType()
 export class Fair {
@@ -21,7 +22,7 @@ export class Fair {
     @Field({nullable:true})
     feature: string;
 
-    @Field()
+    @Field(() => Organization)
     organization: string;
 
     @Field({nullable:true})

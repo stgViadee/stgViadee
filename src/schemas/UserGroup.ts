@@ -1,4 +1,7 @@
 import {Field, ObjectType} from 'type-graphql';
+import {Organization} from './Organization';
+import {Fair} from './Fair';
+import {UserConnection} from './UserConnection';
 
 @ObjectType()
 export class UserGroup {
@@ -12,7 +15,7 @@ export class UserGroup {
     @Field()
     type: string;
 
-    @Field()
+    @Field(() => Organization)
     organization: string;
 
     @Field({nullable:true})
@@ -21,6 +24,9 @@ export class UserGroup {
     @Field({nullable:true})
     changed: Date;
 
-    @Field({nullable:true})
-    fair: string;
+    @Field(() => Fair, {nullable:true})
+    fair: Fair;
+
+    @Field(() => UserConnection, {nullable : true})
+    members: UserConnection;
 }
