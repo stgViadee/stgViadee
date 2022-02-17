@@ -9,10 +9,15 @@ import {UserResolver} from './resolvers/UserResolver';
 import {MeetingResolver} from './resolvers/MeetingResolver';
 import {CompanyResolver} from './resolvers/CompanyResolver';
 import {UserGroupResolver} from './resolvers/UserGroupResolver';
+import {DepartmentResolver} from './resolvers/DepartmentResolver';
+import {DeviceResolver} from './resolvers/DeviceResolver';
+import {DocumentResolver} from './resolvers/DocumentResolver';
+import {FairDayResolver} from './resolvers/FairDayResolver';
+import {FairDeviceResolver} from './resolvers/FairDeviceResolver';
 
 async function main() {
     const schema = await buildSchema({
-        resolvers: [FairResolver, UserResolver, UserGroupResolver, BoothResolver, MeetingResolver, CompanyResolver],
+        resolvers: [FairResolver, DepartmentResolver, DocumentResolver, DeviceResolver, FairDayResolver, FairDeviceResolver, UserResolver, UserGroupResolver, BoothResolver, MeetingResolver, CompanyResolver],
         emitSchemaFile: true,
     });
 

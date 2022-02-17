@@ -16,7 +16,7 @@ export class UserGroup {
     type: string;
 
     @Field(() => Organization)
-    organization: string;
+    organization: Organization;
 
     @Field({nullable:true})
     added: Date;

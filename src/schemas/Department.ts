@@ -1,4 +1,5 @@
 import {Field, ObjectType} from 'type-graphql';
+import {Organization} from './Organization';
 
 @ObjectType()
 export class Department {
@@ -11,7 +12,7 @@ export class Department {
     @Field()
     name: string;
 
-    @Field()
+    @Field(() => Organization)
     organization: string;
 
     @Field({nullable: true})

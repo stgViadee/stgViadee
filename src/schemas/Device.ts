@@ -1,18 +1,21 @@
 import {Field, ObjectType} from 'type-graphql';
+import {DeviceResolver} from '../resolvers/DeviceResolver';
+import {SupportArchive} from './SupportArchive';
+import {DeviceSubscriptions} from './DeviceSubscription';
 
 @ObjectType()
-export class Department {
+export class Device {
     @Field()
     id: string;
 
     @Field( {nullable:true})
     name: string;
 
-    @Field({nullable: true})
-    subscriptions: JSON;
+    @Field(() => DeviceSubscriptions, { nullable: true})
+    subscriptions: DeviceSubscriptions;
 
-    @Field({nullable: true})
-    support: JSON;
+    @Field(() => SupportArchive, {nullable:true})
+    support: SupportArchive;
 
     @Field({nullable: true})
     hasActiveConnection: boolean;

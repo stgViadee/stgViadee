@@ -6,14 +6,14 @@ import {UserGroup} from '../schemas/UserGroup';
 import {Organization} from '../schemas/Organization';
 import {UserConnection} from '../schemas/UserConnection';
 import {ConnectionArgs} from '../schemas/relay/ConnectionArgs';
-import {getOffsetWithDefault, offsetToCursor} from 'graphql-relay';
+import {offsetToCursor} from 'graphql-relay';
 
 @Resolver((of) => UserGroup)
 export class UserGroupResolver {
     private organizations: Organization[] = [];
     private userGroups: UserGroup[] = [];
     private fairs: Fair[] = [];
-    private users: User[] = [];
+    private paginatedResults: User[] = [];
 
     @Query((returns) => [UserGroup], {nullable: true})
     async getUserGroups(): Promise<UserGroup[]> {
@@ -75,12 +75,7 @@ export class UserGroupResolver {
     @FieldResolver(is => UserConnection, {description: ''})
     async members(@Args() args: ConnectionArgs, @Root() userGroup: UserGroup): Promise<UserConnection> {
 
-        if (args.first && args.last) {
-            throw new TypeError('Cannot use \'first\' and \'last\' simultaneously!');
-        }
-        if (args.before && args.after) {
-            throw new TypeError('Cannot use \'before\' and \'after\' simultaneously!');
-        }
+        args.validateParameters();
 
         const countResult = await db.query(sql`
             select count("user".*) as anzahl
@@ -91,30 +86,9 @@ export class UserGroupResolver {
         `);
 
         const totalCount = countResult[0].anzahl;
+        const bounds = args.calculateBounds(totalCount);
 
-        // offsets
-        const beforeOffset = getOffsetWithDefault(args.before, totalCount);
-        const afterOffset = getOffsetWithDefault(args.after, -1);
-
-        let startOffset = Math.max(-1, afterOffset) + 1;
-        let endOffset = Math.min(beforeOffset, totalCount);
-
-        if (args.first) {
-            endOffset = Math.min(endOffset, startOffset + args.first);
-        }
-
-        if (args.last) {
-            startOffset = Math.max(startOffset, endOffset - args.last);
-        }
-
-        // skip, take
-        const offset = Math.max(startOffset, 0); // sql offset
-        const limit = Math.max(endOffset - startOffset, 1); // sql limit
-
-        const before : string = args.before;
-        const after : string  = args.after;
-
-        this.users = await db.query(sql`
+        this.paginatedResults = await db.query(sql`
             select "user".id,
                    email,
                    password,
@@ -135,26 +109,16 @@ export class UserGroupResolver {
                      INNER JOIN fm."userGroupMembership" on "user".id = "userGroupMembership"."user"
             WHERE "userGroupMembership"."userGroup" = ${userGroup.id}
             order by "user".id asc
-                LIMIT ${limit}
-            OFFSET ${offset}
+                LIMIT ${bounds.limit}
+            OFFSET ${bounds.offset}
         `);
 
-        const edges = this.users.map((entity, index) => ({
-            cursor: offsetToCursor(startOffset + index),
+        const edges = this.paginatedResults.map((entity, index) => ({
+            cursor: offsetToCursor(bounds.startOffset + index),
             node: entity
         }));
 
-        // page info
-        const {length, 0: firstEdge, [length - 1]: lastEdge} = edges;
-        const lowerBound = args.after ? afterOffset + 1 : 0;
-        const upperBound = args.before ? Math.min(beforeOffset, totalCount) : totalCount;
-
-        const pageInfo = {
-            startCursor: firstEdge ? firstEdge.cursor : null,
-            endCursor: lastEdge ? lastEdge.cursor : null,
-            hasPreviousPage: args.last ? startOffset > lowerBound : false,
-            hasNextPage: args.first ? endOffset < upperBound : false
-        };
+        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
 
         return {
             edges,

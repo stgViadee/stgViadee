@@ -1,10 +1,10 @@
-import {Field, ObjectType} from 'type-graphql';
+import {Field, ID, ObjectType} from 'type-graphql';
 import {User} from './User';
 import {Organization} from './Organization';
 
 @ObjectType()
 export class Fair {
-    @Field()
+    @Field(() => ID)
     id: string;
 
     @Field({nullable:true})
