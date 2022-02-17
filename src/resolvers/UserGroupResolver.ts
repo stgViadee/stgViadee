@@ -15,11 +15,19 @@ export class UserGroupResolver {
     private fairs: Fair[] = [];
     private users: User[] = [];
 
-    @Query((returns) => [UserGroup], { nullable: true })
+    @Query((returns) => [UserGroup], {nullable: true})
     async getUserGroups(): Promise<UserGroup[]> {
-        console.log("UserGroupResolver: getAll")
-        this.userGroups = await db.query(sql `
-            select id,name,type,organization,added,changed,hid,fair from fm."userGroup"
+        console.log('UserGroupResolver: getAll');
+        this.userGroups = await db.query(sql`
+            select id,
+                   name,
+                   type,
+                   organization,
+                   added,
+                   changed,
+                   hid,
+                   fair
+            from fm."userGroup"
         `);
         return this.userGroups;
     }
@@ -67,8 +75,6 @@ export class UserGroupResolver {
     @FieldResolver(is => UserConnection, {description: ''})
     async members(@Args() args: ConnectionArgs, @Root() userGroup: UserGroup): Promise<UserConnection> {
 
-
-
         if (args.first && args.last) {
             throw new TypeError('Cannot use \'first\' and \'last\' simultaneously!');
         }
@@ -77,15 +83,14 @@ export class UserGroupResolver {
         }
 
         const countResult = await db.query(sql`
-            select "user".*
-            from fm."user" INNER JOIN
+            select count("user".*) as anzahl
+            from fm."user"
+                     INNER JOIN
                  fm."userGroupMembership" on "user".id = "userGroupMembership"."user"
             WHERE "userGroupMembership"."userGroup" = ${userGroup.id}
         `);
 
-        const totalCount  =  countResult.length;
-
-        console.log(userGroup.id + " Es gibt " + totalCount + " User in der Gruppe");
+        const totalCount = countResult[0].anzahl;
 
         // offsets
         const beforeOffset = getOffsetWithDefault(args.before, totalCount);
@@ -106,11 +111,8 @@ export class UserGroupResolver {
         const offset = Math.max(startOffset, 0); // sql offset
         const limit = Math.max(endOffset - startOffset, 1); // sql limit
 
-
-        console.log(offset);
-        console.log(endOffset);
-        console.log(startOffset);
-        console.log(limit);
+        const before : string = args.before;
+        const after : string  = args.after;
 
         this.users = await db.query(sql`
             select "user".id,
@@ -132,8 +134,9 @@ export class UserGroupResolver {
             from fm."user"
                      INNER JOIN fm."userGroupMembership" on "user".id = "userGroupMembership"."user"
             WHERE "userGroupMembership"."userGroup" = ${userGroup.id}
-            order by "user".id asc 
-            LIMIT ${limit} OFFSET ${offset}
+            order by "user".id asc
+                LIMIT ${limit}
+            OFFSET ${offset}
         `);
 
         const edges = this.users.map((entity, index) => ({
@@ -142,21 +145,21 @@ export class UserGroupResolver {
         }));
 
         // page info
-        const { length, 0: firstEdge, [length - 1]: lastEdge } = edges
-        const lowerBound = args.after ? afterOffset + 1 : 0
-        const upperBound = args.before ? Math.min(beforeOffset, totalCount) : totalCount
+        const {length, 0: firstEdge, [length - 1]: lastEdge} = edges;
+        const lowerBound = args.after ? afterOffset + 1 : 0;
+        const upperBound = args.before ? Math.min(beforeOffset, totalCount) : totalCount;
 
         const pageInfo = {
             startCursor: firstEdge ? firstEdge.cursor : null,
             endCursor: lastEdge ? lastEdge.cursor : null,
             hasPreviousPage: args.last ? startOffset > lowerBound : false,
             hasNextPage: args.first ? endOffset < upperBound : false
-        }
+        };
 
         return {
             edges,
             pageInfo
-        }
+        };
 
     }
 
