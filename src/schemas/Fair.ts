@@ -17,7 +17,7 @@ export class Fair {
     timezone: string;
 
     @Field(() => User)
-    author: User;
+    author: string;
 
     @Field({nullable:true})
     feature: string;

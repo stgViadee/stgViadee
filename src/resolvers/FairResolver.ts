@@ -1,8 +1,10 @@
+import DataLoader from 'dataloader';
 import {Query, Resolver, Arg, Maybe, FieldResolver, Root} from 'type-graphql';
 import {Fair} from '../schemas/Fair';
 import db, {sql} from '../dbconfig/dbconfig';
 import {User} from '../schemas/User';
 import {Organization} from '../schemas/Organization';
+import {Loader} from 'type-graphql-dataloader';
 
 
 @Resolver((of) => Fair)
@@ -49,9 +51,8 @@ export class FairResolver {
     }
 
     @FieldResolver(is => User, {description: ''})
-    async author(@Root() fair: Fair): Promise<User> {
-        console.log('FairResolver: lade Autor nach');
-        this.users = await db.query(sql`
+    @Loader<string, User>(async (ids) => {  // batchLoadFn
+       return await db.query(sql`
             select id,
                    email,
                    password,
@@ -69,15 +70,17 @@ export class FairResolver {
                    "emailValidated",
                    "hasMobileDevices"
             from fm.user
-            where id = ${fair.author}
+            where id = ANY (${ids}::uuid[])
         `);
-        return this.users[0];
+    })
+    async author(@Root() fair: Fair) {
+        return (dataloader: DataLoader<string, User>) =>
+            dataloader.load(fair.author);
     }
 
     @FieldResolver(is => Organization, {description: ''})
-    async organization(@Root() fair: Fair): Promise<Organization> {
-        console.log('FairResolver: lade Organization nach');
-        this.organizations = await db.query(sql`
+    @Loader<string, User>(async (ids) => {  // batchLoadFn
+        return await db.query(sql`
             select id,
                    name,
                    avatar,
@@ -90,8 +93,11 @@ export class FairResolver {
                    "autoExtendLicense",
                    "cancelReason"
             from fm.organization
-            where id = ${fair.organization}
+            where id = ANY (${ids}::uuid[])
         `);
-        return this.organizations[0];
+    })
+    async organization(@Root() fair: Fair) {
+        return (dataloader: DataLoader<string, Organization>) =>
+            dataloader.load(fair.organization);
     }
 }

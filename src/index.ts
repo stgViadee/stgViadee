@@ -14,6 +14,7 @@ import {DeviceResolver} from './resolvers/DeviceResolver';
 import {DocumentResolver} from './resolvers/DocumentResolver';
 import {FairDayResolver} from './resolvers/FairDayResolver';
 import {FairDeviceResolver} from './resolvers/FairDeviceResolver';
+import {ApolloServerLoaderPlugin} from 'type-graphql-dataloader';
 
 async function main() {
     const schema = await buildSchema({
@@ -25,6 +26,9 @@ async function main() {
 
     const server = new ApolloServer({
         schema,
+        plugins: [
+            ApolloServerLoaderPlugin(),
+        ],
     });
 
     await server.start();
