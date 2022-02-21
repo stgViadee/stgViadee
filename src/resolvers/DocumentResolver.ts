@@ -12,30 +12,17 @@ export class DocumentResolver {
 
     @Query((returns) => DocumentConnection, {nullable: true})
     async documents(@Args() args: ConnectionArgs): Promise<DocumentConnection> {
-        console.log('DocumentResolver: getAll - paginated');
-
-        args.validateParameters();
+        args.validateArgs();
 
         const countResult = await db.query(sql`
-            select count(*) as anzahl
-            from fm.document
+            select count(*) as anzahl from fm.document
         `);
 
         const totalCount = countResult[0].anzahl;
         const bounds = args.calculateBounds(totalCount);
 
         this.paginatedResults = await db.query(sql`
-            select id,
-                   hid,
-                   type,
-                   "contentType",
-                   bucket,
-                   path,
-                key,
-                added,
-                changed,
-                "user"
-            from fm.document
+            select * from fm.document
             order by id asc
             LIMIT ${bounds.limit}
             OFFSET ${bounds.offset}

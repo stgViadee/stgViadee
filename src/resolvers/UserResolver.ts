@@ -8,18 +8,16 @@ export class UserResolver {
 
     @Query((returns) => [User], { nullable: true })
     async getUsers(): Promise<User[]> {
-        console.log("UserResolver: getAll")
         this.users = await db.query(sql `
-            select id,email,password,"hasActiveConnection","lastAuthenticated","createdBy","invitationSent","invitationSentBy","isDisabled",added,changed,"usesAuthEmailProxy",hid,preferences,"emailValidated","hasMobileDevices" from fm.user
+            * from fm.user
         `);
         return this.users;
     }
 
     @Query((returns) => User, { nullable: true })
     async user(@Arg("id") id : string): Promise<Maybe<User>> {
-        console.log("UserResolver: getById")
         this.users = await db.query(sql `
-            select id,email,password,"hasActiveConnection","lastAuthenticated","createdBy","invitationSent","invitationSentBy","isDisabled",added,changed,"usesAuthEmailProxy",hid,preferences,"emailValidated","hasMobileDevices" from fm.user 
+            select * from fm.user 
             where id = ${id}
         `);
         return this.users[0];
@@ -27,9 +25,8 @@ export class UserResolver {
 
     @FieldResolver(is => User, {description: ''})
     async createdBy(@Root() user: User): Promise<User> {
-        console.log("UserResolver: lade CreatedBy")
         this.users = await db.query(sql`
-            select id,email,password,"hasActiveConnection","lastAuthenticated","createdBy","invitationSent","invitationSentBy","isDisabled",added,changed,"usesAuthEmailProxy",hid,preferences,"emailValidated","hasMobileDevices" from fm.user
+            select * from fm.user
             where id = ${user.createdBy}
         `);
         return this.users[0];

@@ -10,9 +10,8 @@ export class FairDayResolver {
 
     @FieldResolver(is => Fair, {description: ''})
     async fair(@Root() fairDay: FairDay): Promise<Fair> {
-        console.log("FairDayResolver: lade Fair nach")
         this.fairs = await db.query(sql`
-            select id,name,timezone,author,features,organization,added,changed,hid from fm.fair
+            select * from fm.fair
             where id = ${fairDay.fair}
         `);
         return this.fairs[0];

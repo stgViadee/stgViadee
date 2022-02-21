@@ -1,7 +1,6 @@
 import * as Relay from 'graphql-relay';
-import {Field, ArgsType} from 'type-graphql';
-import {Edge, getOffsetWithDefault} from 'graphql-relay';
-import {GraphQLObjectType} from 'graphql';
+import {Field, ArgsType, Maybe} from 'type-graphql';
+import {getOffsetWithDefault} from 'graphql-relay';
 
 @ArgsType()
 export class ConnectionArgs implements Relay.ConnectionArguments {
@@ -23,7 +22,7 @@ export class ConnectionArgs implements Relay.ConnectionArguments {
     @Field((type) => Number, {nullable: true, description: 'Paginate last'})
     last?: number;
 
-    public validateParameters(): void {
+    public validateArgs(): void {
         if (this.first && this.last) {
             throw new Error('Cannot use \'first\' and \'last\' simultaneously!');
         }

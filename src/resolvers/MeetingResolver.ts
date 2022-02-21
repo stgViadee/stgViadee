@@ -10,18 +10,16 @@ export class MeetingResolver {
 
     @Query((returns) => [Meeting], { nullable: true })
     async getMeetings(): Promise<Meeting[]> {
-        console.log("MeetingResolver: getAll")
         this.meetings = await db.query(sql `
-            select id,start,"end",title,"isIcalUpdatePending","sequenceCount",notes,color,display,resource,organizer,added,changed,hid,"requiresCatering" from fm.meeting
+            select * from fm.meeting
         `);
         return this.meetings;
     }
 
     @Query((returns) => Meeting, { nullable: true })
     async meeting(@Arg("id") id : string): Promise<Maybe<Meeting>> {
-        console.log("MeetingResolver: getById " + id)
         this.meetings = await db.query(sql `
-            select id,start,"end",title,"isIcalUpdatePending","sequenceCount",notes,color,display,resource,organizer,added,changed,hid,"requiresCatering" from fm.meeting 
+            select * from fm.meeting 
             where id = ${id}
         `);
         return this.meetings[0];
@@ -29,9 +27,8 @@ export class MeetingResolver {
 
     @FieldResolver(is => User, {description: ''})
     async organizer(@Root() meeting: Meeting): Promise<User> {
-        console.log("MeetingResolver: lade organizer")
         this.users = await db.query(sql`
-            select id,email,password,"hasActiveConnection","lastAuthenticated","createdBy","invitationSent","invitationSentBy","isDisabled",added,changed,"usesAuthEmailProxy",hid,preferences,"emailValidated","hasMobileDevices" from fm.user
+            select * from fm.user
             where id = ${meeting.organizer}
         `);
         return this.users[0];

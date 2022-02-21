@@ -10,20 +10,16 @@ export class BoothResolver {
 
     @Query((returns) => [Booth], { nullable: true })
     async getBooths(): Promise<Booth[]> {
-        console.log("BoothResolver: getAll")
         this.booths = await db.query(sql `
-            SELECT id, name, hall, fair, added, changed, hid
-            FROM fm.booth
+            SELECT * FROM fm.booth
         `);
         return this.booths;
     }
 
     @Query((returns) => Booth, { nullable: true })
     async booth(@Arg("id") id : string): Promise<Maybe<Booth>> {
-        console.log("BoothResolver: getById" + id)
         this.booths = await db.query(sql `
-            SELECT id, name, hall, fair, added, changed, hid
-            FROM fm.booth
+            SELECT * FROM fm.booth
             where id = ${id}
         `);
         return this.booths[0];
@@ -31,9 +27,8 @@ export class BoothResolver {
 
     @FieldResolver(is => Fair, {description: ''})
     async fair(@Root() booth: Booth): Promise<Fair> {
-        console.log("BoothResolver: lade Fair nach")
         this.fairs = await db.query(sql`
-            select id,name,timezone,author,features,organization,added,changed,hid from fm.fair
+            select * from fm.fair
             where id = ${booth.fair}
         `);
         return this.fairs[0];

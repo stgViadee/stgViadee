@@ -13,7 +13,6 @@ export class FairDeviceResolver {
     @Query(() => FairDevice, {nullable: true})
     async fairDevice(@Arg('deviceId', () => ID, {nullable: true}) deviceId: string,
                      @Arg('id', () => ID, {nullable: true}) id: string): Promise<FairDevice> {
-        console.log('FairDeviceResolver: getById');
         if (!deviceId && !id) {
             throw new Error('You have to either specify `deviceId` or `id`.');
         }
@@ -28,15 +27,7 @@ export class FairDeviceResolver {
         }
 
         this.fairDevices = await db.query(sql`
-            SELECT id,
-                   name,
-                   fair,
-                   device,
-                   added,
-                   changed,
-                   hid,
-                   settings
-            FROM fm."fairDevice"
+            SELECT * FROM fm."fairDevice"
             WHERE id = ${id} OR device = ${deviceId}
         `);
 
@@ -46,18 +37,8 @@ export class FairDeviceResolver {
 
     @FieldResolver(is => Fair, {description: ''})
     async fair(@Root() fairDevice: FairDevice): Promise<Fair> {
-        console.log('FairDeviceResolver: lade Fair nach');
         this.fairs = await db.query(sql`
-            select id,
-                   name,
-                   timezone,
-                   author,
-                   features,
-                   organization,
-                   added,
-                   changed,
-                   hid
-            from fm.fair
+            select * from fm.fair
             where id = ${fairDevice.fair}
         `);
         return this.fairs[0];
@@ -65,24 +46,8 @@ export class FairDeviceResolver {
 
     @FieldResolver(is => Device, {description: ''})
     async device(@Root() fairDevice: FairDevice): Promise<Device> {
-        console.log('FairDeviceResolver: lade Device nach ');
         this.devices = await db.query(sql`
-            select id,
-                   name,
-                   subscriptions,
-                   support,
-                   "hasActiveConnection",
-                   type,
-                   "deviceIdentifier",
-                   "pushIdentifier",
-                   "user",
-                   token,
-                   added,
-                   changed,
-                   hid,
-                   "lastAuthenticated",
-                   "deliveryFailures"
-            from fm.device
+            select * from fm.device
             where id = ${fairDevice.device}
         `);
         return this.devices[0];
