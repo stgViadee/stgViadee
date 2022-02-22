@@ -1,7 +1,8 @@
 import {Query, Resolver, Arg, Maybe, FieldResolver, Root} from 'type-graphql';
-import db, {sql} from '../dbconfig/dbconfig';
 import {Meeting} from '../schemas/Meeting';
 import {User} from '../schemas/User';
+import {getAllMeetings, getMeetingById} from '../queries/MeetingQueries';
+import {getUserAttendingMeetingByMeetingId, getUserById} from '../queries/UserQueries';
 
 @Resolver((of) => Meeting)
 export class MeetingResolver {
@@ -10,38 +11,25 @@ export class MeetingResolver {
 
     @Query((returns) => [Meeting], { nullable: true })
     async getMeetings(): Promise<Meeting[]> {
-        this.meetings = await db.query(sql `
-            select * from fm.meeting
-        `);
+        this.meetings = await getAllMeetings();
         return this.meetings;
     }
 
     @Query((returns) => Meeting, { nullable: true })
     async meeting(@Arg("id") id : string): Promise<Maybe<Meeting>> {
-        this.meetings = await db.query(sql `
-            select * from fm.meeting 
-            where id = ${id}
-        `);
+        this.meetings = await getMeetingById(id);
         return this.meetings[0];
     }
 
     @FieldResolver(is => User, {description: ''})
     async organizer(@Root() meeting: Meeting): Promise<User> {
-        this.users = await db.query(sql`
-            select * from fm.user
-            where id = ${meeting.organizer}
-        `);
+        this.users = await getUserById(meeting.organizer);
         return this.users[0];
     }
 
     @FieldResolver(is => [User], {description: ''})
     async attendees(@Root() meeting: Meeting): Promise<Iterable<User>> {
-        console.log("MeetingResolver: lade attendees")
-        this.users = await db.query(sql`
-            SELECT "user".*
-            FROM fm.user inner join fm.attendance on "user".id = attendance."user"
-            WHERE attendance.meeting = ${meeting.id}
-        `);
+        this.users = await getUserAttendingMeetingByMeetingId(meeting.id)
         return this.users;
     }
 

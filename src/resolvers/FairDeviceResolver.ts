@@ -3,6 +3,8 @@ import db, {sql} from '../dbconfig/dbconfig';
 import {Fair} from '../schemas/Fair';
 import {FairDevice} from '../schemas/FairDevice';
 import {Device} from '../schemas/Device';
+import {getFairById} from '../queries/FairQueries';
+import {getFairDeviceByIdOrDeviceId} from '../queries/FairDeviceQueries';
 
 @Resolver((of) => FairDevice)
 export class FairDeviceResolver {
@@ -26,21 +28,14 @@ export class FairDeviceResolver {
             id = null;
         }
 
-        this.fairDevices = await db.query(sql`
-            SELECT * FROM fm."fairDevice"
-            WHERE id = ${id} OR device = ${deviceId}
-        `);
-
+        this.fairDevices = await getFairDeviceByIdOrDeviceId(id, deviceId);
         return this.fairDevices[0];
 
     }
 
     @FieldResolver(is => Fair, {description: ''})
     async fair(@Root() fairDevice: FairDevice): Promise<Fair> {
-        this.fairs = await db.query(sql`
-            select * from fm.fair
-            where id = ${fairDevice.fair}
-        `);
+        this.fairs = await getFairById(fairDevice.fair);
         return this.fairs[0];
     }
 

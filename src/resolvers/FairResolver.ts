@@ -1,7 +1,6 @@
 import DataLoader from 'dataloader';
 import {Query, Resolver, Arg, Maybe, FieldResolver, Root, Ctx, Args} from 'type-graphql';
 import {Fair} from '../schemas/Fair';
-import db, {sql} from '../dbconfig/dbconfig';
 import {User} from '../schemas/User';
 import {Organization} from '../schemas/Organization';
 import {Loader} from 'type-graphql-dataloader';
@@ -11,28 +10,34 @@ import {ConnectionArgs} from '../schemas/relay/ConnectionArgs';
 import {generateFilterType} from 'type-graphql-filter';
 import {FairDay} from '../schemas/FairDay';
 import {offsetToCursor} from 'graphql-relay';
+import {BoothConnection} from '../schemas/BoothConnection';
+import {Booth} from '../schemas/Booth';
+import {getAllFairs, getFairById, getFairsByIdArray} from '../queries/FairQueries';
+import {getOrganizationsByIdArray} from '../queries/OrganizationQueries';
+import {
+    getCountOfTodaysFairDays,
+    getFairDayByFairIdFilteredCount,
+    getFairDayByFairIdPaginated
+} from '../queries/FairDayQueries';
+import {getBoothByFairIdCount, getBoothByFairIdPaginated} from '../queries/BoothQueries';
+import {getUsersByIdArray} from '../queries/UserQueries';
 
 @Resolver((of) => Fair)
 export class FairResolver {
     private fairs: Fair[] = [];
-    private paginatedResults: FairDay[] = [];
+    private paginatedFairDayResults: FairDay[] = [];
+    private paginatedBoothResults: Booth[] = [];
 
     @Query((returns) => [Fair], {nullable: true})
     async getFairs(): Promise<Fair[]> {
-        this.fairs = await db.query(sql`
-            select * from fm.fair
-        `);
+        this.fairs = await getAllFairs();
         return this.fairs;
     }
 
 
     @Query((returns) => Fair, {nullable: true})
     async fair(@Arg('id') id: string): Promise<Maybe<Fair>> {
-        this.fairs = await db.query(sql`
-            select *
-            from fm.fair
-            where id = ${id}
-        `);
+        this.fairs = await getFairById(id);
         return this.fairs[0];
     }
 
@@ -43,10 +48,7 @@ export class FairResolver {
 
     @FieldResolver(is => User, {description: ''})
     @Loader<string, User>(async (ids) => {  // batchLoadFn
-        return await db.query(sql`
-            select * from fm.user
-            where id = ANY (${ids}::uuid[])
-        `);
+        return await getUsersByIdArray(ids);
     })
     async author(@Root() fair: Fair) {
         return (dataloader: DataLoader<string, User>) =>
@@ -54,11 +56,8 @@ export class FairResolver {
     }
 
     @FieldResolver(is => Organization, {description: ''})
-    @Loader<string, User>(async (ids) => {  // batchLoadFn
-        return await db.query(sql`
-            select * from fm.organization
-            where id = ANY (${ids}::uuid[])
-        `);
+    @Loader<string, Organization>(async (ids) => {  // batchLoadFn
+        return await getOrganizationsByIdArray(ids);
     })
     async organization(@Root() fair: Fair) {
         return (dataloader: DataLoader<string, Organization>) =>
@@ -72,85 +71,60 @@ export class FairResolver {
         @Arg('filter', generateFilterType(FairDay)) filter: any) {
 
         args.validateArgs();
-
-        console.log(filter);
-
-        const countResult = await db.query(sql`
-            select count(*) as anzahl from fm."fairDay"
-            where fair = ${fair.id} AND
-                COALESCE(${filter.open_lte}, "fairDay".open) <= "fairDay".open AND
-                COALESCE(${filter.close_gte}, "fairDay".close) >= "fairDay".close 
-        `);
+        const countResult = await getFairDayByFairIdFilteredCount(fair.id, filter);
 
         const totalCount = countResult[0].anzahl;
         const bounds = args.calculateBounds(totalCount);
 
-        this.paginatedResults = await db.query(sql`
-            select * from fm."fairDay"
-            where "fairDay".fair = ${fair.id} AND 
-                  COALESCE( ${filter.open_lte}, "fairDay".open) <= "fairDay".open AND
-                  COALESCE( ${filter.close_gte}, "fairDay".close) >= "fairDay".close
-           order by "fairDay".id asc
-                LIMIT ${bounds.limit}
-            OFFSET ${bounds.offset}
-        `);
-
-        const edges = this.paginatedResults.map((entity, index) => ({
+        this.paginatedFairDayResults = await getFairDayByFairIdPaginated(fair.id, filter, bounds);
+        const edges = this.paginatedFairDayResults.map((entity, index) => ({
             cursor: offsetToCursor(bounds.startOffset + index),
             node: entity
         }));
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-
         return {
             edges,
             pageInfo
         };
 
+    }
+
+    @FieldResolver(is => Boolean, {
+        description: "Does this fair open today?",
+    })
+    async isToday(@Root() fair: Fair): Promise<boolean> {
+        const countResult = await getCountOfTodaysFairDays(fair.id);
+        return countResult[0].anzahl > 0;
+    }
+
+    @FieldResolver(is => BoothConnection, {
+        description: '',
+    })
+    async booths(
+        @Args() args: ConnectionArgs,
+        @Root() fair: Fair
+    ): Promise<BoothConnection> {
+        args.validateArgs();
+        const countResult = await getBoothByFairIdCount(fair.id);
+
+        const totalCount = countResult[0].anzahl;
+        const bounds = args.calculateBounds(totalCount);
+
+        this.paginatedBoothResults = await getBoothByFairIdPaginated(fair.id, bounds);
+        const edges = this.paginatedBoothResults.map((entity, index) => ({
+            cursor: offsetToCursor(bounds.startOffset + index),
+            node: entity
+        }));
+
+        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
+        return {
+            edges,
+            pageInfo
+        };
 
     }
 
-    // @FieldResolver(is => Boolean, {
-    //     description: "Does this fair open today?",
-    // })
-    // async isToday(
-    //     @Root() fair: Fair,
-    //     @Ctx() context: ApolloContextAuthenticated
-    // ): Promise<boolean> {
-    //     const queryClause: {
-    //         open: { $lte: Date } | undefined;
-    //         close: { $gte: Date } | undefined;
-    //         fair: string;
-    //     } = {
-    //         open: {
-    //             $lte: new Date(),
-    //         },
-    //         close: {
-    //             $gte: new Date(),
-    //         },
-    //         fair: fair.id,
-    //     };
-    //
-    //     const today = await context.messageContext.em.findOne(FairDay, queryClause);
-    //     return today !== null;
-    // }
-    //
-    // @FieldResolver(is => BoothConnection, {
-    //     description: '',
-    // })
-    // async booths(
-    //     @Args() page: PageArguments,
-    //     @Root() fair: Fair
-    // ): Promise<BoothConnection> {
-    //     await this._safeguardPageArguments(page);
-    //
-    //     await fair.booths.loadItems();
-    //
-    //     return BoothConnection.fromCompleteCollection({
-    //         nodes: Array.from(fair.booths),
-    //         pageRequest: page,
-    //     });
-    // }
     //
     // @FieldResolver(is => FairResourceConnection, {
     //     description: "The meeting resources at the fair.",
@@ -464,3 +438,4 @@ export class FairResolver {
     // }
     // //#endregion
 }
+

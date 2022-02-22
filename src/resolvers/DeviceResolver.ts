@@ -3,6 +3,9 @@ import db, {sql} from '../dbconfig/dbconfig';
 import {Device} from '../schemas/Device';
 import {User} from '../schemas/User';
 import {Token} from '../schemas/Token';
+import {getAllDevices, getDeviceById} from '../queries/DeviceQueries';
+import {getUserById} from '../queries/UserQueries';
+import {getTokenById} from '../queries/TokenQueries';
 
 @Resolver((of) => Device)
 export class DeviceResolver {
@@ -12,36 +15,25 @@ export class DeviceResolver {
 
     @Query((returns) => [Device], { nullable: true })
     async getDevices(): Promise<Device[]> {
-        this.devices = await db.query(sql `
-            select * from fm.device
-        `);
+        this.devices = await getAllDevices();
         return this.devices;
     }
 
     @Query((returns) => Device, { nullable: true })
     async device(@Arg("id") id : string): Promise<Maybe<Device>> {
-        this.devices = await db.query(sql `
-            select * from fm.device
-            where id = ${id}
-        `);
+        this.devices = await getDeviceById(id);
         return this.devices[0];
     }
 
     @FieldResolver(is => User, {description: ''})
     async createdBy(@Root() device: Device): Promise<User> {
-        this.users = await db.query(sql`
-            select * from fm.user
-            where id = ${device.user}
-        `);
+        this.users = await getUserById(device.user);
         return this.users[0];
     }
 
     @FieldResolver(is => Token, {description: ''})
     async token(@Root() device: Device): Promise<Token> {
-        this.tokens = await db.query(sql`
-            select * from fm.token
-            where id = ${device.token}
-        `);
+        this.tokens = await getTokenById(device.token);
         return this.tokens[0];
     }
 

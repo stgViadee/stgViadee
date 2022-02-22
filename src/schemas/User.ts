@@ -1,11 +1,8 @@
 import {Field, ObjectType} from 'type-graphql';
-import { ID } from '../../node_modules/type-graphql/dist/index';
+import {NodeInterface} from './NodeInterface';
 
-@ObjectType()
+@ObjectType({ implements: NodeInterface})
 export class User {
-
-    @Field(() => ID)
-    id: string;
 
     @Field({nullable: true})
     email: string;
@@ -20,7 +17,7 @@ export class User {
     lastAuthenticated: Date;
 
     @Field(() => User, {nullable: true})
-    createdBy: User;
+    createdBy: string
 
     @Field({nullable: true})
     invitationSent: Date;

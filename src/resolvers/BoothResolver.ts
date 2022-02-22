@@ -1,7 +1,9 @@
 import {Arg, FieldResolver, Maybe, Query, Resolver, Root} from 'type-graphql';
 import {Booth} from '../schemas/Booth';
-import db, {sql} from '../dbconfig/dbconfig';
 import {Fair} from '../schemas/Fair';
+import {getFairById} from '../queries/FairQueries';
+import {getAllBooths, getBoothById} from '../queries/BoothQueries';
+import {convertIdsToGlobalId, convertIdToGlobalId} from '../schemas/relay/GlobalIdHandler';
 
 @Resolver((of) => Booth)
 export class BoothResolver {
@@ -10,28 +12,20 @@ export class BoothResolver {
 
     @Query((returns) => [Booth], { nullable: true })
     async getBooths(): Promise<Booth[]> {
-        this.booths = await db.query(sql `
-            SELECT * FROM fm.booth
-        `);
-        return this.booths;
+        this.booths = await getAllBooths();
+        return convertIdsToGlobalId('booth', this.booths);
     }
 
     @Query((returns) => Booth, { nullable: true })
-    async booth(@Arg("id") id : string): Promise<Maybe<Booth>> {
-        this.booths = await db.query(sql `
-            SELECT * FROM fm.booth
-            where id = ${id}
-        `);
-        return this.booths[0];
+    async booth(@Arg("id") id : string): Promise<any[]> {
+        this.booths = await getBoothById(id);
+        return convertIdToGlobalId('booth', this.booths[0]);
     }
 
     @FieldResolver(is => Fair, {description: ''})
     async fair(@Root() booth: Booth): Promise<Fair> {
-        this.fairs = await db.query(sql`
-            select * from fm.fair
-            where id = ${booth.fair}
-        `);
-        return this.fairs[0];
+        this.fairs = await getFairById(booth.fair)
+        return convertIdToGlobalId( 'booth', this.fairs[0]);
     }
 
 }

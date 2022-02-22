@@ -11,7 +11,7 @@ export class FairDevice {
     name: string;
 
     @Field(() => Fair)
-    fair: Fair;
+    fair: string;
 
     @Field(() => Device)
     device: Device;
