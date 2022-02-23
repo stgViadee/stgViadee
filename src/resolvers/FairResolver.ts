@@ -49,23 +49,22 @@ export class FairResolver {
 
     @FieldResolver(is => User, {description: ''})
     @Loader<string, User>(async (ids) => {  // batchLoadFn
-        return await getUsersByIdArray(ids);
+        var result = await getUsersByIdArray(ids);
+        return convertIdsToGlobalId('user', result);
     })
     async author(@Root() fair: Fair) {
-        // TODO Tut NICHT!
-        return (dataloader: DataLoader<string, User>) => {
+        return (dataloader: DataLoader<string, User>) =>
             dataloader.load(fair.author);
-        }
     }
 
     @FieldResolver(is => Organization, {description: ''})
     @Loader<string, Organization>(async (ids) => {  // batchLoadFn
-        return await getOrganizationsByIdArray(ids);
+        var result = await getOrganizationsByIdArray(ids);
+        return convertIdsToGlobalId('organization', result);
     })
     async organization(@Root() fair: Fair) {
-        // TODO Tut gut
         return (dataloader: DataLoader<string, Organization>) =>
-             dataloader.load(fair.organization);
+              dataloader.load(fair.organization);
     }
 
     @FieldResolver(() => FairDayConnection, {description: 'The days during which the fair takes place'})

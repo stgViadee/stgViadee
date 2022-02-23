@@ -33,8 +33,4 @@ export class Fair {
 
     @Field({nullable:true})
     changed: Date;
-
-    constructor (name: string) {
-        this.name = name;
-    }
 }

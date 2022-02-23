@@ -11,10 +11,8 @@ import {getFairById} from '../queries/FairQueries';
 import { Node } from '../schemas/Node'
 import {convertFromGlobalId, convertIdToGlobalId} from '../schemas/relay/GlobalIdHandler';
 import {Fair} from '../schemas/Fair';
-import {fromGlobalId, toGlobalId} from 'graphql-relay';
 import {getUserById} from '../queries/UserQueries';
 import {User} from '../schemas/User';
-import {encode} from 'slugid';
 
 @Resolver(() => Node)
 export class NodeResolver {
