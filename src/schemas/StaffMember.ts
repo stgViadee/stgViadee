@@ -1,6 +1,7 @@
 import {Field, ObjectType} from 'type-graphql';
+import {Node} from './Node';
 
-@ObjectType()
+@ObjectType( { implements: Node} )
 export class StaffMember {
 
     @Field()

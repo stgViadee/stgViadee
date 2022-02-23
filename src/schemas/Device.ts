@@ -1,11 +1,11 @@
-import {Field, ObjectType} from 'type-graphql';
-import {DeviceResolver} from '../resolvers/DeviceResolver';
+import {Field, ID, ObjectType} from 'type-graphql';
 import {SupportArchive} from './SupportArchive';
 import {DeviceSubscriptions} from './DeviceSubscription';
+import {Node} from './Node';
 
-@ObjectType()
+@ObjectType( { implements: Node} )
 export class Device {
-    @Field()
+    @Field(() => ID)
     id: string;
 
     @Field( {nullable:true})

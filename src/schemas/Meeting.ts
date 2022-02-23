@@ -1,7 +1,8 @@
 import {Field, ID, ObjectType} from 'type-graphql';
 import {User} from './User';
+import {Node} from './Node';
 
-@ObjectType()
+@ObjectType( { implements: Node} )
 export class Meeting {
     @Field(() => ID)
     id: string;

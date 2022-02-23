@@ -2,9 +2,11 @@ import {Field, ID, ObjectType} from 'type-graphql';
 import {User} from './User';
 import {Organization} from './Organization';
 import {FairFeatures} from './FairFeatures';
+import {Node} from './Node';
 
-@ObjectType()
+@ObjectType( { implements: Node} )
 export class Fair {
+
     @Field(() => ID)
     id: string;
 
@@ -32,4 +34,7 @@ export class Fair {
     @Field({nullable:true})
     changed: Date;
 
+    constructor (name: string) {
+        this.name = name;
+    }
 }

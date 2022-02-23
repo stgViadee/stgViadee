@@ -1,7 +1,8 @@
 import * as Validate from "class-validator";
-import {Field, InputType, ObjectType} from 'type-graphql';
+import {Field,  ObjectType} from 'type-graphql';
+import {Node} from './Node';
 
-@ObjectType()
+@ObjectType( { implements: Node} )
 export class DeviceSubscriptions {
     @Field(is => Boolean, {
         description: "Reminders about a set return time.",

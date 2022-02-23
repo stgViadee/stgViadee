@@ -1,8 +1,9 @@
-import {Field, ObjectType} from 'type-graphql';
+import {Field, ID, ObjectType} from 'type-graphql';
+import {Node} from './Node';
 
-@ObjectType()
+@ObjectType( { implements: Node} )
 export class Document {
-    @Field()
+    @Field(() => ID)
     id: string;
 
     @Field({nullable:true})

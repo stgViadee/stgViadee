@@ -1,5 +1,5 @@
 import {fromGlobalId, toGlobalId} from 'graphql-relay';
-import {encode, decode} from 'slugid';
+import {decode, encode} from 'slugid';
 
 export function convertIdsToGlobalId(typeName: string, resultSet: any[]) {
     return resultSet.map(item => {
@@ -18,4 +18,3 @@ export function convertFromGlobalId(globalId: string) {
         id: decode(id),
     }
 }
-

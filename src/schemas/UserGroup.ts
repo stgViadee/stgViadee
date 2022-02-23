@@ -25,7 +25,7 @@ export class UserGroup {
     changed: Date;
 
     @Field(() => Fair, {nullable:true})
-    fair: Fair;
+    fair: string;
 
     @Field(() => UserConnection, {nullable : true})
     members: UserConnection;

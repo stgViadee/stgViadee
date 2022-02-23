@@ -15,10 +15,11 @@ import {DocumentResolver} from './resolvers/DocumentResolver';
 import {FairDayResolver} from './resolvers/FairDayResolver';
 import {FairDeviceResolver} from './resolvers/FairDeviceResolver';
 import {ApolloServerLoaderPlugin} from 'type-graphql-dataloader';
+import {NodeResolver} from './resolvers/NodeResolver';
 
 async function main() {
     const schema = await buildSchema({
-        resolvers: [FairResolver, DepartmentResolver, DocumentResolver, DeviceResolver, FairDayResolver, FairDeviceResolver, UserResolver, UserGroupResolver, BoothResolver, MeetingResolver, CompanyResolver],
+        resolvers: [FairResolver, DepartmentResolver, NodeResolver, DocumentResolver, DeviceResolver, FairDayResolver, FairDeviceResolver, UserResolver, UserGroupResolver, BoothResolver, MeetingResolver, CompanyResolver],
         emitSchemaFile: true,
     });
 

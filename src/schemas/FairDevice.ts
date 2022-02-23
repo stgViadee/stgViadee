@@ -1,8 +1,9 @@
 import {Field, ID, ObjectType} from 'type-graphql';
 import {Fair} from './Fair';
 import {Device} from './Device';
+import {Node} from './Node';
 
-@ObjectType()
+@ObjectType( { implements: Node} )
 export class FairDevice {
     @Field(() => ID)
     id: string;

@@ -1,7 +1,8 @@
 import * as GraphQL from 'type-graphql';
 import {Field, ObjectType} from 'type-graphql';
+import {Node} from './Node';
 
-@ObjectType()
+@ObjectType( { implements: Node} )
 export class SupportInfoDevice {
     @Field(is => String, {nullable: true})
     architecture? = '';

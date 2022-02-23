@@ -21,6 +21,7 @@ import {
 } from '../queries/FairDayQueries';
 import {getBoothByFairIdCount, getBoothByFairIdPaginated} from '../queries/BoothQueries';
 import {getUsersByIdArray} from '../queries/UserQueries';
+import {convertFromGlobalId, convertIdsToGlobalId, convertIdToGlobalId} from '../schemas/relay/GlobalIdHandler';
 
 @Resolver((of) => Fair)
 export class FairResolver {
@@ -31,14 +32,14 @@ export class FairResolver {
     @Query((returns) => [Fair], {nullable: true})
     async getFairs(): Promise<Fair[]> {
         this.fairs = await getAllFairs();
-        return this.fairs;
+        return convertIdsToGlobalId('fair', this.fairs);
     }
 
 
     @Query((returns) => Fair, {nullable: true})
     async fair(@Arg('id') id: string): Promise<Maybe<Fair>> {
-        this.fairs = await getFairById(id);
-        return this.fairs[0];
+        this.fairs = await getFairById(convertFromGlobalId(id).id);
+        return convertIdToGlobalId('fair', this.fairs[0]);
     }
 
     @FieldResolver(() => FairFeatures, {description: 'The feature set for this fair.'})
@@ -51,8 +52,10 @@ export class FairResolver {
         return await getUsersByIdArray(ids);
     })
     async author(@Root() fair: Fair) {
-        return (dataloader: DataLoader<string, User>) =>
+        // TODO Tut NICHT!
+        return (dataloader: DataLoader<string, User>) => {
             dataloader.load(fair.author);
+        }
     }
 
     @FieldResolver(is => Organization, {description: ''})
@@ -60,8 +63,9 @@ export class FairResolver {
         return await getOrganizationsByIdArray(ids);
     })
     async organization(@Root() fair: Fair) {
+        // TODO Tut gut
         return (dataloader: DataLoader<string, Organization>) =>
-            dataloader.load(fair.organization);
+             dataloader.load(fair.organization);
     }
 
     @FieldResolver(() => FairDayConnection, {description: 'The days during which the fair takes place'})
@@ -71,15 +75,17 @@ export class FairResolver {
         @Arg('filter', generateFilterType(FairDay)) filter: any) {
 
         args.validateArgs();
-        const countResult = await getFairDayByFairIdFilteredCount(fair.id, filter);
+        const {type, id} = convertFromGlobalId(fair.id);
+        const countResult = await getFairDayByFairIdFilteredCount(id, filter);
 
         const totalCount = countResult[0].anzahl;
         const bounds = args.calculateBounds(totalCount);
 
-        this.paginatedFairDayResults = await getFairDayByFairIdPaginated(fair.id, filter, bounds);
+        // @ts-ignore
+        this.paginatedFairDayResults = await getFairDayByFairIdPaginated(id, filter, bounds);
         const edges = this.paginatedFairDayResults.map((entity, index) => ({
             cursor: offsetToCursor(bounds.startOffset + index),
-            node: entity
+            node: convertIdToGlobalId('fairday', entity)
         }));
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
@@ -94,7 +100,7 @@ export class FairResolver {
         description: "Does this fair open today?",
     })
     async isToday(@Root() fair: Fair): Promise<boolean> {
-        const countResult = await getCountOfTodaysFairDays(fair.id);
+        const countResult = await getCountOfTodaysFairDays(convertFromGlobalId(fair.id).id);
         return countResult[0].anzahl > 0;
     }
 
@@ -106,15 +112,16 @@ export class FairResolver {
         @Root() fair: Fair
     ): Promise<BoothConnection> {
         args.validateArgs();
-        const countResult = await getBoothByFairIdCount(fair.id);
+        const {type, id} = convertFromGlobalId(fair.id);
+        const countResult = await getBoothByFairIdCount(id);
 
         const totalCount = countResult[0].anzahl;
         const bounds = args.calculateBounds(totalCount);
 
-        this.paginatedBoothResults = await getBoothByFairIdPaginated(fair.id, bounds);
+        this.paginatedBoothResults = await getBoothByFairIdPaginated(id, bounds);
         const edges = this.paginatedBoothResults.map((entity, index) => ({
             cursor: offsetToCursor(bounds.startOffset + index),
-            node: entity
+            node: convertIdToGlobalId('booth', entity)
         }));
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);

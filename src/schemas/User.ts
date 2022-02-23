@@ -1,8 +1,11 @@
-import {Field, ObjectType} from 'type-graphql';
-import {NodeInterface} from './NodeInterface';
+import {Field, ID, ObjectType} from 'type-graphql';
+import {Node} from './Node';
 
-@ObjectType({ implements: NodeInterface})
+@ObjectType({ implements: Node})
 export class User {
+
+    @Field(() => ID)
+    id: string;
 
     @Field({nullable: true})
     email: string;

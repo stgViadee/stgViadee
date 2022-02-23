@@ -6,7 +6,7 @@ export function getAllFairs() {
         `);
 }
 
-export function getFairById(id : any) {
+export function getFairById(id : string) {
     return db.query(sql`
             select * from fm.fair
             where id = ${id}

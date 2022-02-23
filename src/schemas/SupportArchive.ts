@@ -3,8 +3,9 @@ import { SupportInfoDevice } from "./SupportInfoDevice";
 import { SupportInfoNavigator } from "./SupportInfoNavigator";
 import { SupportInfoPlatform } from "./SupportInfoPlatform";
 import {Field, Int, ObjectType} from 'type-graphql';
+import {Node} from './Node';
 
-@ObjectType()
+@ObjectType( { implements: Node} )
 export class SupportArchive {
     @Field(is => Int)
     v = 2;

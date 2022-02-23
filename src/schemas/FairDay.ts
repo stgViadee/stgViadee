@@ -1,10 +1,11 @@
-import {Field, GraphQLISODateTime, ObjectType} from 'type-graphql';
+import {Field, GraphQLISODateTime, ID, ObjectType} from 'type-graphql';
 import {Filter} from 'type-graphql-filter';
 import {GraphQLString} from 'graphql';
+import {Node} from './Node';
 
-@ObjectType()
+@ObjectType( { implements: Node} )
 export class FairDay {
-    @Field()
+    @Field(() => ID)
     id: string;
 
     @Field()

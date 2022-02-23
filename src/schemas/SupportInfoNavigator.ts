@@ -1,25 +1,27 @@
-import * as GraphQL from "type-graphql";
+import * as GraphQL from 'type-graphql';
 import {Field, ObjectType} from 'type-graphql';
+import {Node} from './Node';
 
 @ObjectType({
-    description: "Information about the web view used in the app.",
+    implements: Node,
+    description: 'Information about the web view used in the app.',
 })
 export class SupportInfoNavigator {
     @Field(is => Boolean, {
-        description: "Are cookies enabled in the navigator?",
+        description: 'Are cookies enabled in the navigator?',
     })
     cookieEnabled = false;
 
     @Field(is => String, {
-        description: "The language of the navigator.",
+        description: 'The language of the navigator.',
     })
-    language = "";
+    language = '';
 
     @Field(is => String)
-    platform = "";
+    platform = '';
 
     @Field(is => String, {
-        description: "The user-agent string as provided by the navigator.",
+        description: 'The user-agent string as provided by the navigator.',
     })
-    userAgent = "";
+    userAgent = '';
 }
