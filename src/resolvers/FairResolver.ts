@@ -12,7 +12,7 @@ import {FairDay} from '../schemas/FairDay';
 import {offsetToCursor} from 'graphql-relay';
 import {BoothConnection} from '../schemas/BoothConnection';
 import {Booth} from '../schemas/Booth';
-import {getAllFairs, getFairById, getFairsByIdArray} from '../queries/FairQueries';
+import {getAllFairs, getFairById} from '../queries/FairQueries';
 import {getOrganizationsByIdArray} from '../queries/OrganizationQueries';
 import {
     getCountOfTodaysFairDays,
@@ -22,12 +22,23 @@ import {
 import {getBoothByFairIdCount, getBoothByFairIdPaginated} from '../queries/BoothQueries';
 import {getUsersByIdArray} from '../queries/UserQueries';
 import {convertFromGlobalId, convertIdsToGlobalId, convertIdToGlobalId} from '../schemas/relay/GlobalIdHandler';
+import {FairResourceConnection} from '../schemas/FairResourceConnection';
+import {FairResource} from '../schemas/FairResource';
+import {
+    getFairResourceByFairIdFilteredCount,
+    getFairResourceByFairIdFilteredPaginated
+} from '../queries/FairResourceQueries';
+import {FairInfoConnection} from '../schemas/FairInfoConnection';
+import {getFairInfoByFairIdFilteredCount, getFairInfoByFairIdFilteredPaginated} from '../queries/FairInfoQueries';
+import {FairInfo} from '../schemas/FairInfo';
+import {FairProductConnection} from '../schemas/FairProductConnection';
+import {getFairProductByFairIdCount, getFairProductByFairIdPaginated} from '../queries/FairProductQueries';
+import {PrinterConnection} from '../schemas/PrinterConnection';
+import {getPrinterByFairIdCount, getPrinterByFairIdPaginated} from '../queries/PrinterQueries';
 
 @Resolver((of) => Fair)
 export class FairResolver {
     private fairs: Fair[] = [];
-    private paginatedFairDayResults: FairDay[] = [];
-    private paginatedBoothResults: Booth[] = [];
 
     @Query((returns) => [Fair], {nullable: true})
     async getFairs(): Promise<Fair[]> {
@@ -80,9 +91,8 @@ export class FairResolver {
         const totalCount = countResult[0].anzahl;
         const bounds = args.calculateBounds(totalCount);
 
-        // @ts-ignore
-        this.paginatedFairDayResults = await getFairDayByFairIdPaginated(id, filter, bounds);
-        const edges = this.paginatedFairDayResults.map((entity, index) => ({
+        const paginatedResults =  await getFairDayByFairIdPaginated(id, filter, bounds);
+        const edges = paginatedResults.map((entity, index) => ({
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('fairday', entity)
         }));
@@ -117,10 +127,68 @@ export class FairResolver {
         const totalCount = countResult[0].anzahl;
         const bounds = args.calculateBounds(totalCount);
 
-        this.paginatedBoothResults = await getBoothByFairIdPaginated(id, bounds);
-        const edges = this.paginatedBoothResults.map((entity, index) => ({
+        const paginatedResults =  await getBoothByFairIdPaginated(id, bounds);
+        const edges = paginatedResults.map((entity, index) => ({
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('booth', entity)
+        }));
+
+        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
+        return {
+            edges,
+            pageInfo
+        };
+    }
+
+
+    @FieldResolver(is => FairResourceConnection, {
+        description: "The meeting resources at the fair.",
+    })
+    async resources(
+        @Args() args: ConnectionArgs,
+        @Root() fair: Fair,
+        @Arg('filter', generateFilterType(FairResource)) filter: any
+    ): Promise<FairResourceConnection> {
+        args.validateArgs();
+        const {type, id} = convertFromGlobalId(fair.id);
+        const countResult = await getFairResourceByFairIdFilteredCount(id, filter);
+
+        const totalCount = countResult[0].anzahl;
+        const bounds = args.calculateBounds(totalCount);
+
+        const paginatedResults = await getFairResourceByFairIdFilteredPaginated(id, filter, bounds);
+        const edges = paginatedResults.map((entity, index) => ({
+            cursor: offsetToCursor(bounds.startOffset + index),
+            node: convertIdToGlobalId('fairresource', entity)
+        }));
+
+        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
+        return {
+            edges,
+            pageInfo
+        };
+    }
+
+    @FieldResolver(is => FairInfoConnection, {
+        description: "The fair info elements that make up the fair booklet.",
+    })
+    async infos(
+        @Args() args: ConnectionArgs,
+        @Root() fair: Fair,
+        @Arg('filter', generateFilterType(FairInfo)) filter: any
+    ): Promise<FairInfoConnection> {
+        args.validateArgs();
+
+        const {type, id} = convertFromGlobalId(fair.id);
+        const countResult = await getFairInfoByFairIdFilteredCount(id, filter);
+
+        const totalCount = countResult[0].anzahl;
+        const bounds = args.calculateBounds(totalCount);
+
+        const paginatedResults = await getFairInfoByFairIdFilteredPaginated(id, filter, bounds);
+        const edges = paginatedResults.map((entity, index) => ({
+            cursor: offsetToCursor(bounds.startOffset + index),
+            node: convertIdToGlobalId('fairinfo', entity)
         }));
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
@@ -131,100 +199,62 @@ export class FairResolver {
 
     }
 
-    //
-    // @FieldResolver(is => FairResourceConnection, {
-    //     description: "The meeting resources at the fair.",
-    // })
-    // async resources(
-    //     @Args() pageAndFilter: FairResourceSearchArguments,
-    //     @Root() fair: Fair,
-    //     @Ctx() context: ApolloContextAuthenticated
-    // ): Promise<FairResourceConnection> {
-    //     await this._safeguardPageArguments(pageAndFilter);
-    //
-    //     const filter = new FilterHelper(pageAndFilter.filter);
-    //
-    //     const queryClause: {
-    //         hasCatering?: boolean;
-    //         hasMeetings?: boolean;
-    //         fair: string;
-    //     } = {
-    //         fair: fair.id,
-    //     };
-    //
-    //     if (filter.doesHave("hasCatering")) {
-    //         queryClause.hasCatering = filter.get("hasCatering");
-    //     }
-    //     if (filter.doesHave("hasMeetings")) {
-    //         queryClause.hasMeetings = filter.get("hasMeetings");
-    //     }
-    //
-    //     const repoTools = new PaginationHelper(context.messageContext.em);
-    //
-    //     const nodes = await repoTools.resolvePage(FairResource, queryClause, pageAndFilter);
-    //     const pageInfo = await repoTools.getPageInfo(FairResource, queryClause, pageAndFilter, nodes);
-    //
-    //     return FairResourceConnection.fromSubset({ pageRequest: pageAndFilter, nodes, ...pageInfo });
-    // }
-    //
-    // @Authorized()
-    // @FieldResolver(is => FairInfoConnection, {
-    //     description: "The fair info elements that make up the fair booklet.",
-    // })
-    // async infos(
-    //     @Args() pageAndFilter: FairInfoSearchArguments,
-    //     @Root() fair: Fair
-    // ): Promise<FairInfoConnection> {
-    //     await this._safeguardPageArguments(pageAndFilter);
-    //
-    //     const filter = new FilterHelper(pageAndFilter.filter);
-    //
-    //     await fair.infos.loadItems();
-    //     const infos = filter.doesHave("type")
-    //         ? fair.infos.getItems().filter(info => info.type === filter.get("type"))
-    //         : fair.infos.getItems();
-    //
-    //     return FairInfoConnection.fromCompleteCollection({
-    //         nodes: infos,
-    //         pageRequest: pageAndFilter,
-    //     });
-    // }
-    //
-    // @Authorized()
-    // @FieldResolver(is => FairProductConnection, {
-    //     description: "The products that are available for order at the fair.",
-    // })
-    // async products(
-    //     @Args() page: PageArguments,
-    //     @Root() fair: Fair
-    // ): Promise<FairProductConnection> {
-    //     await this._safeguardPageArguments(page);
-    //
-    //     await fair.products.loadItems();
-    //
-    //     return FairProductConnection.fromCompleteCollection({
-    //         nodes: Array.from(fair.products),
-    //         pageRequest: page,
-    //     });
-    // }
-    //
-    // @Authorized()
-    // @FieldResolver(is => PrinterConnection, {
-    //     description: "The printers available at the fair.",
-    // })
-    // async printers(
-    //     @Args() page: PageArguments,
-    //     @Root() fair: Fair
-    // ): Promise<PrinterConnection> {
-    //     await this._safeguardPageArguments(page);
-    //
-    //     await fair.printers.loadItems();
-    //
-    //     return PrinterConnection.fromCompleteCollection({
-    //         nodes: Array.from(fair.printers),
-    //         pageRequest: page,
-    //     });
-    // }
+    @FieldResolver(is => FairProductConnection, {
+        description: "The products that are available for order at the fair.",
+    })
+    async products(
+        @Args() args: ConnectionArgs,
+        @Root() fair: Fair
+    ): Promise<FairProductConnection> {
+        args.validateArgs();
+
+        const {type, id} = convertFromGlobalId(fair.id);
+        const countResult = await getFairProductByFairIdCount(id);
+
+        const totalCount = countResult[0].anzahl;
+        const bounds = args.calculateBounds(totalCount);
+
+        const paginatedResults = await getFairProductByFairIdPaginated(id, bounds);
+        const edges = paginatedResults.map((entity, index) => ({
+            cursor: offsetToCursor(bounds.startOffset + index),
+            node: convertIdToGlobalId('fairproduct', entity)
+        }));
+
+        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
+        return {
+            edges,
+            pageInfo
+        };
+
+    }
+
+    @FieldResolver(is => PrinterConnection, {
+        description: "The printers available at the fair.",
+    })
+    async printers(
+        @Args() args: ConnectionArgs,
+        @Root() fair: Fair
+    ): Promise<PrinterConnection> {
+        args.validateArgs();
+
+        const {type, id} = convertFromGlobalId(fair.id);
+        const countResult = await getPrinterByFairIdCount(id);
+
+        const totalCount = countResult[0].anzahl;
+        const bounds = args.calculateBounds(totalCount);
+
+        const paginatedResults = await getPrinterByFairIdPaginated(id, bounds);
+        const edges = paginatedResults.map((entity, index) => ({
+            cursor: offsetToCursor(bounds.startOffset + index),
+            node: convertIdToGlobalId('printer', entity)
+        }));
+
+        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
+        return {
+            edges,
+            pageInfo
+        };
+    }
     //
     // @Authorized()
     // @FieldResolver(is => FairDeviceConnection, {

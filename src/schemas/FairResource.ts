@@ -1,9 +1,11 @@
-import {Field, ObjectType} from 'type-graphql';
+import {Field, GraphQLISODateTime, ID, ObjectType} from 'type-graphql';
 import {Node} from './Node';
+import {Filter} from 'type-graphql-filter';
+import {GraphQLBoolean} from 'graphql';
 
 @ObjectType( { implements: Node} )
 export class FairResource {
-    @Field()
+    @Field(() => ID)
     id: string;
 
     @Field({nullable:true})
@@ -19,9 +21,11 @@ export class FairResource {
     fair: string;
 
     @Field({nullable:true})
+    @Filter(["eq"], () => GraphQLBoolean)
     hasMeetings: boolean;
 
     @Field({nullable:true})
+    @Filter(["eq"], () => GraphQLBoolean)
     hasCatering: boolean;
 
     @Field({nullable:true})

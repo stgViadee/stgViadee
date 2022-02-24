@@ -1,10 +1,11 @@
 import {Resolver, FieldResolver, Root, Query, ID, Arg} from 'type-graphql';
-import db, {sql} from '../dbconfig/dbconfig';
 import {Fair} from '../schemas/Fair';
 import {FairDevice} from '../schemas/FairDevice';
 import {Device} from '../schemas/Device';
 import {getFairById} from '../queries/FairQueries';
-import {getFairDeviceByIdOrDeviceId} from '../queries/FairDeviceQueries';
+import {getFairDeviceByDeviceId, getFairDeviceById} from '../queries/FairDeviceQueries';
+import {convertFromGlobalId, convertIdToGlobalId} from '../schemas/relay/GlobalIdHandler';
+import {getDeviceById} from '../queries/DeviceQueries';
 
 @Resolver((of) => FairDevice)
 export class FairDeviceResolver {
@@ -14,38 +15,34 @@ export class FairDeviceResolver {
 
     @Query(() => FairDevice, {nullable: true})
     async fairDevice(@Arg('deviceId', () => ID, {nullable: true}) deviceId: string,
-                     @Arg('id', () => ID, {nullable: true}) id: string): Promise<FairDevice> {
-        if (!deviceId && !id) {
+                     @Arg('id', () => ID, {nullable: true}) fairDeviceId: string): Promise<FairDevice> {
+        if (!deviceId && !fairDeviceId) {
             throw new Error('You have to either specify `deviceId` or `id`.');
         }
-        if (deviceId && id) {
+        if (deviceId && fairDeviceId) {
             throw new Error('You can only specify either `deviceId` or `id`.');
         }
 
-        if (id) {
-            deviceId = null;
+        if (fairDeviceId) {
+        this.fairDevices = await getFairDeviceById(convertFromGlobalId(fairDeviceId).id);
         } else {
-            id = null;
+        this.fairDevices = await getFairDeviceByDeviceId(convertFromGlobalId(deviceId).id);
         }
 
-        this.fairDevices = await getFairDeviceByIdOrDeviceId(id, deviceId);
-        return this.fairDevices[0];
+        return convertIdToGlobalId('fairdevice', this.fairDevices[0]);
 
     }
 
     @FieldResolver(is => Fair, {description: ''})
     async fair(@Root() fairDevice: FairDevice): Promise<Fair> {
         this.fairs = await getFairById(fairDevice.fair);
-        return this.fairs[0];
+        return convertIdToGlobalId('fair', this.fairs[0]);
     }
 
     @FieldResolver(is => Device, {description: ''})
     async device(@Root() fairDevice: FairDevice): Promise<Device> {
-        this.devices = await db.query(sql`
-            select * from fm.device
-            where id = ${fairDevice.device}
-        `);
-        return this.devices[0];
+        this.devices = await getDeviceById(fairDevice.device);
+        return convertIdToGlobalId('device', this.devices[0]);
     }
 
 }

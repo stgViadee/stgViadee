@@ -1,12 +1,15 @@
-import {Field, ObjectType} from 'type-graphql';
+import {Field, ID, ObjectType} from 'type-graphql';
 import {Node} from './Node';
+import {Filter} from 'type-graphql-filter';
+import {GraphQLBoolean, GraphQLString} from 'graphql';
 
 @ObjectType( { implements: Node} )
 export class FairInfo {
-    @Field()
+    @Field(() => ID)
     id: string;
 
     @Field({nullable:true})
+    @Filter(["eq"], () => GraphQLString)
     type: string;
 
     @Field({nullable:true})

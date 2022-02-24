@@ -3,7 +3,7 @@ import {Booth} from '../schemas/Booth';
 import {Fair} from '../schemas/Fair';
 import {getFairById} from '../queries/FairQueries';
 import {getAllBooths, getBoothById} from '../queries/BoothQueries';
-import {convertIdsToGlobalId, convertIdToGlobalId} from '../schemas/relay/GlobalIdHandler';
+import {convertFromGlobalId, convertIdsToGlobalId, convertIdToGlobalId} from '../schemas/relay/GlobalIdHandler';
 
 @Resolver((of) => Booth)
 export class BoothResolver {
@@ -17,8 +17,8 @@ export class BoothResolver {
     }
 
     @Query((returns) => Booth, { nullable: true })
-    async booth(@Arg("id") id : string): Promise<any[]> {
-        this.booths = await getBoothById(id);
+    async booth(@Arg("id") boothId : string): Promise<any[]> {
+        this.booths = await getBoothById(convertFromGlobalId(boothId).id);
         return convertIdToGlobalId('booth', this.booths[0]);
     }
 

@@ -4,6 +4,7 @@ import {Node} from './Node';
 
 @ObjectType( { implements: Node} )
 export class Organization {
+
     @Field(() => ID)
     id: string;
 
@@ -13,7 +14,7 @@ export class Organization {
     @Field({nullable:true})
     avatar: string;
 
-    @Field(() => User, {nullable:true})
+    @Field(() => User)
     author: string;
 
     @Field({nullable: true})

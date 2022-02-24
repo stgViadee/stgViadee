@@ -39,12 +39,12 @@ export class NodeResolver {
 
 
         if (type === 'fair') {
-            this.fairResult = await getFairById(id);
-            return convertIdToGlobalId('fair', this.fairResult[0]);
+            var fairResult = await getFairById(id);
+            return convertIdToGlobalId('fair', fairResult[0]);
         }
         if (type === 'user') {
-            this.userResult = await getUserById(id);
-            return convertIdToGlobalId('user', this.userResult[0]);
+            var userResult = await getUserById(id);
+            return convertIdToGlobalId('user', userResult[0]);
         }
 
         return this.nodeResult[0];

@@ -4,6 +4,7 @@ import db, {sql} from '../dbconfig/dbconfig';
 import {Organization} from '../schemas/Organization';
 import {getAllCompanies, getCompanyById} from '../queries/CompanyQueries';
 import {getOrganizationById} from '../queries/OrganizationQueries';
+import {convertFromGlobalId, convertIdsToGlobalId, convertIdToGlobalId} from '../schemas/relay/GlobalIdHandler';
 
 @Resolver((of) => Company)
 export class CompanyResolver {
@@ -13,19 +14,19 @@ export class CompanyResolver {
     @Query((returns) => [Company], { nullable: true })
     async getCompanys(): Promise<Company[]> {
         this.companys = await getAllCompanies();
-        return this.companys;
+        return convertIdsToGlobalId('company', this.companys);
     }
 
     @Query((returns) => Company, { nullable: true })
-    async company(@Arg("id") id : string): Promise<Maybe<Company>> {
-        this.companys = await getCompanyById(id);
-        return this.companys[0];
+    async company(@Arg("id") companyId : string): Promise<Maybe<Company>> {
+        this.companys = await getCompanyById(convertFromGlobalId(companyId).id);
+        return convertIdToGlobalId('company', this.companys[0]);
     }
 
     @FieldResolver(is => Organization, {description: ''})
     async organization(@Root() company: Company): Promise<Organization> {
         this.organizations = await getOrganizationById(company.organization);
-        return this.organizations[0];
+        return convertIdToGlobalId('orangization', this.organizations[0]);
     }
 
 }

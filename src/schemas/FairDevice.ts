@@ -15,7 +15,7 @@ export class FairDevice {
     fair: string;
 
     @Field(() => Device)
-    device: Device;
+    device: string;
 
     @Field({nullable:true})
     settings: string;

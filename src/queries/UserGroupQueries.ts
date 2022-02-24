@@ -19,7 +19,7 @@ export function getUserGroupMemberByUserGroupIdCount(userGroupId: string) {
 
 export function getUserGroupMemberByUserGroupIdPaginated(userGroupId: string, bounds : any) {
     return db.query(sql`
-        select user.*
+        select "user".*
         from fm."user"
                  INNER JOIN fm."userGroupMembership" on "user".id = "userGroupMembership"."user"
         WHERE "userGroupMembership"."userGroup" = ${userGroupId}

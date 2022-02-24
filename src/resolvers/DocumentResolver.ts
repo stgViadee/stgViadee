@@ -1,10 +1,10 @@
 import {Query, Resolver, Args, Ctx} from 'type-graphql';
-import db, {sql} from '../dbconfig/dbconfig';
 import {ConnectionArgs} from '../schemas/relay/ConnectionArgs';
-import {getOffsetWithDefault, offsetToCursor} from 'graphql-relay';
+import {offsetToCursor} from 'graphql-relay';
 import {DocumentConnection} from '../schemas/DocumentConnection';
 import {Document} from '../schemas/Document';
 import {getDocumentsByFileStoreByUserIdCount, getDocumentsByFileStoreByUserPaginated} from '../queries/DocumentQueries';
+import {convertIdToGlobalId} from '../schemas/relay/GlobalIdHandler';
 
 @Resolver((of) => Document)
 export class DocumentResolver {
@@ -23,7 +23,7 @@ export class DocumentResolver {
         this.paginatedResults = await getDocumentsByFileStoreByUserPaginated(userId, bounds);
         const edges = this.paginatedResults.map((entity, index) => ({
             cursor: offsetToCursor(bounds.startOffset + index),
-            node: entity
+            node: convertIdToGlobalId('document', entity)
         }));
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
