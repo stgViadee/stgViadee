@@ -1,5 +1,8 @@
 import {Field, ObjectType} from 'type-graphql';
 import {Node} from './Node';
+import {Timeframe} from './Timeframe';
+import {GraphQLBoolean} from 'graphql';
+import {Filter} from 'type-graphql-filter';
 
 @ObjectType( { implements: Node} )
 export class StaffMember {
@@ -11,6 +14,7 @@ export class StaffMember {
     primaryBooth: string;
 
     @Field()
+    @Filter(['eq'], () => GraphQLBoolean)
     isAvailable: boolean;
 
     @Field({nullable: true})
@@ -36,4 +40,8 @@ export class StaffMember {
 
     @Field({nullable: true})
     hid: string;
+
+    @Field( {nullable : true})
+    @Filter(['eq', ], () => GraphQLBoolean)
+    attendance: [Timeframe]
 }

@@ -1,5 +1,5 @@
 import DataLoader from 'dataloader';
-import {Query, Resolver, Arg, Maybe, FieldResolver, Root, Ctx, Args} from 'type-graphql';
+import {Query, Resolver, Arg, Maybe, FieldResolver, Root, Ctx, Args, Info} from 'type-graphql';
 import {Fair} from '../schemas/Fair';
 import {User} from '../schemas/User';
 import {Organization} from '../schemas/Organization';
@@ -39,6 +39,9 @@ import {getFairDeviceByFairIdCount, getFairDeviceByFairIdPaginated} from '../que
 import {MeetingConnection} from '../schemas/MeetingConnection';
 import {getMeetingByFairIdFilteredCount, getMeetingByFairIdFilteredPaginated} from '../queries/MeetingQueries';
 import {Meeting} from '../schemas/Meeting';
+import {StaffMemberConnection} from '../schemas/StaffMemberConnection';
+import {GraphQLResolveInfo} from 'graphql';
+import {StaffMemberFilter} from '../filter/StaffMemberFilter';
 
 @Resolver((of) => Fair)
 export class FairResolver {
@@ -316,21 +319,36 @@ export class FairResolver {
             pageInfo
         };
     }
+
+    // SELECT
+    // "userProfile".*
+    // FROM
+    // fm."staffMember" INNER JOIN
+    // fm."user"                   ON "staffMember"."user" = "user".id INNER JOIN
+    // fm."userProfile"                    ON "user".id = "userProfile"."user"
     //
-    // @Authorized()
-    // @FieldResolver(is => StaffMemberSearchConnection, {
+    // where "userProfile"."nameFirst" ilike '%ol%'
+
+    // @FieldResolver(is => StaffMemberConnection, {
     //     description: "The entire staff of the fair.",
     // })
     // async staff(
-    //     @Args() pageAndFilter: FairMemberSearchArguments,
-    //     @Ctx() context: ApolloContextAuthenticated,
+    //     @Args() args: ConnectionArgs,
+    //     @Args() filter: StaffMemberFilter,
     //     @Root() fair: Fair,
     //     @Info() info: GraphQLResolveInfo
-    // ): Promise<StaffMemberSearchConnection> {
-    //     await this._safeguardPageArguments(pageAndFilter);
+    // ): Promise<StaffMemberConnection> {
+    //     args.validateArgs();
+
+    // SELECT
+    // "userProfile".*
+    // FROM
+    // fm."staffMember" INNER JOIN
+    // fm."user"                   ON "staffMember"."user" = "user".id INNER JOIN
+    // fm."userProfile"                    ON "user".id = "userProfile"."user"
     //
-    //     const filter = new FilterHelper(pageAndFilter.filter);
-    //
+    // where "userProfile"."nameFirst" ilike '%ol%'
+
     //     const makeStaffMemberQueryClause = (ids: Array<string>) => {
     //         const query: {
     //             attendance?: { start: { $gte: Date }; end: { $lte: Date } } | undefined;
@@ -441,7 +459,7 @@ export class FairResolver {
     //         ...pageInfo,
     //     });
     // }
-    //
+
     // @Authorized()
     // @FieldResolver(is => OrderConnection, {
     //     description: "Orders created at this fair.",
