@@ -26,7 +26,6 @@ export class NodeResolver {
         @Root() { id }: { id: string },
         @Info() { parentType: { name } }: { parentType: { name: string } }
     ): string {
-        console.log("Hier laufen wird durch " + name);
         return convertIdToGlobalId(name, id);
     }
 
@@ -34,9 +33,6 @@ export class NodeResolver {
         globalId: string
     ): Promise<Node | undefined> {
         const {type, id} = convertFromGlobalId(globalId)
-        console.log(type)
-        console.log(id)
-
 
         if (type === 'fair') {
             var fairResult = await getFairById(id);

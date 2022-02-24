@@ -11,7 +11,6 @@ import {generateFilterType} from 'type-graphql-filter';
 import {FairDay} from '../schemas/FairDay';
 import {offsetToCursor} from 'graphql-relay';
 import {BoothConnection} from '../schemas/BoothConnection';
-import {Booth} from '../schemas/Booth';
 import {getAllFairs, getFairById} from '../queries/FairQueries';
 import {getOrganizationsByIdArray} from '../queries/OrganizationQueries';
 import {
@@ -35,6 +34,8 @@ import {FairProductConnection} from '../schemas/FairProductConnection';
 import {getFairProductByFairIdCount, getFairProductByFairIdPaginated} from '../queries/FairProductQueries';
 import {PrinterConnection} from '../schemas/PrinterConnection';
 import {getPrinterByFairIdCount, getPrinterByFairIdPaginated} from '../queries/PrinterQueries';
+import {FairDeviceConnection} from '../schemas/FairDeviceConnection';
+import {getFairDeviceByFairIdCount, getFairDeviceByFairIdPaginated} from '../queries/FairDeviceQueries';
 
 @Resolver((of) => Fair)
 export class FairResolver {
@@ -255,25 +256,35 @@ export class FairResolver {
             pageInfo
         };
     }
-    //
-    // @Authorized()
-    // @FieldResolver(is => FairDeviceConnection, {
-    //     description: "The fair devices associated with the fair.",
-    // })
-    // async fairDevices(
-    //     @Args() page: PageArguments,
-    //     @Root() fair: Fair
-    // ): Promise<FairDeviceConnection> {
-    //     await this._safeguardPageArguments(page);
-    //
-    //     await fair.devices.loadItems();
-    //
-    //     return FairDeviceConnection.fromCompleteCollection({
-    //         nodes: Array.from(fair.devices),
-    //         pageRequest: page,
-    //     });
-    // }
-    //
+
+    @FieldResolver(is => FairDeviceConnection, {
+        description: "The fair devices associated with the fair.",
+    })
+    async fairDevices(
+        @Args() args: ConnectionArgs,
+        @Root() fair: Fair
+    ): Promise<FairDeviceConnection> {
+        args.validateArgs();
+
+        const {type, id} = convertFromGlobalId(fair.id);
+        const countResult = await getFairDeviceByFairIdCount(id);
+
+        const totalCount = countResult[0].anzahl;
+        const bounds = args.calculateBounds(totalCount);
+
+        const paginatedResults = await getFairDeviceByFairIdPaginated(id, bounds);
+        const edges = paginatedResults.map((entity, index) => ({
+            cursor: offsetToCursor(bounds.startOffset + index),
+            node: convertIdToGlobalId('fairdevice', entity)
+        }));
+
+        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
+        return {
+            edges,
+            pageInfo
+        };
+    }
+
     // @Authorized()
     // @FieldResolver(is => MeetingConnection, {
     //     description: "All meetings that are scheduled at the fair.",

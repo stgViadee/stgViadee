@@ -22,7 +22,6 @@ export function getUserAttendingMeetingByMeetingId(meetingId : string) {
 }
 
 export function getUsersByIdArray(ids : Readonly<string[]>) {
-    console.log(ids);
     return db.query(sql`
         select * from fm.user
         where id = ANY (${ids}::uuid[])

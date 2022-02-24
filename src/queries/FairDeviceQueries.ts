@@ -14,4 +14,21 @@ export function getFairDeviceByDeviceId(deviceId : string) {
         `);
 }
 
+export function getFairDeviceByFairIdCount(fairId : string) {
+    return db.query(sql`
+            SELECT count(*) as anzahl FROM fm."fairDevice"
+            WHERE fair = ${fairId}
+        `);
+}
+
+export function getFairDeviceByFairIdPaginated(fairId : string, bounds: any) {
+    return db.query(sql`
+            SELECT * FROM fm."fairDevice"
+            WHERE fair = ${fairId}
+            order by "fairDevice".id asc
+                LIMIT ${bounds.limit}
+            OFFSET ${bounds.offset}
+        `);
+}
+
 
