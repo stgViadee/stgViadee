@@ -36,6 +36,9 @@ import {PrinterConnection} from '../schemas/PrinterConnection';
 import {getPrinterByFairIdCount, getPrinterByFairIdPaginated} from '../queries/PrinterQueries';
 import {FairDeviceConnection} from '../schemas/FairDeviceConnection';
 import {getFairDeviceByFairIdCount, getFairDeviceByFairIdPaginated} from '../queries/FairDeviceQueries';
+import {MeetingConnection} from '../schemas/MeetingConnection';
+import {getMeetingByFairIdFilteredCount, getMeetingByFairIdFilteredPaginated} from '../queries/MeetingQueries';
+import {Meeting} from '../schemas/Meeting';
 
 @Resolver((of) => Fair)
 export class FairResolver {
@@ -285,53 +288,34 @@ export class FairResolver {
         };
     }
 
-    // @Authorized()
-    // @FieldResolver(is => MeetingConnection, {
-    //     description: "All meetings that are scheduled at the fair.",
-    // })
-    // async meetings(
-    //     @Args() pageAndFilter: MeetingSearchArguments,
-    //     @Root() fair: Fair,
-    //     @Ctx() context: ApolloContextAuthenticated
-    // ): Promise<MeetingConnection> {
-    //     await this._safeguardPageArguments(pageAndFilter);
-    //
-    //     const filter = new FilterHelper(pageAndFilter.filter);
-    //     filter.mutuallyExclusives(
-    //         ["rightNow"],
-    //         [
-    //             "startsAfter",
-    //             "startsAfterOrAt",
-    //             "startsBefore",
-    //             "startsBeforeOrAt",
-    //             "endsAfter",
-    //             "endsAfterOrAt",
-    //             "endsBefore",
-    //             "endsBeforeOrAt",
-    //         ]
-    //     );
-    //     if (
-    //         filter.doesHave("fairId") &&
-    //         Identification.fromGlobalId(filter.get("fairId")).id !== fair.id
-    //     ) {
-    //         throw new FilterExpressionError(
-    //             "The provided `fairId` must match the ID of the fair being resolved."
-    //         );
-    //     }
-    //
-    //     const queryClause = MeetingFilterHelper.resolveMeetingFilterToQuery(filter, {
-    //         resource: {
-    //             fair: fair.id,
-    //         },
-    //     });
-    //
-    //     const repoTools = new PaginationHelper(context.messageContext.em);
-    //
-    //     const nodes = await repoTools.resolvePage(Meeting, queryClause, pageAndFilter);
-    //     const pageInfo = await repoTools.getPageInfo(Meeting, queryClause, pageAndFilter, nodes);
-    //
-    //     return MeetingConnection.fromSubset({ pageRequest: pageAndFilter, nodes, ...pageInfo });
-    // }
+    @FieldResolver(is => MeetingConnection, {
+        description: "All meetings that are scheduled at the fair.",
+    })
+    async meetings(
+        @Args() args: ConnectionArgs,
+        @Root() fair: Fair,
+        @Arg('filter', generateFilterType(Meeting)) filter: any
+    ): Promise<MeetingConnection> {
+        args.validateArgs();
+
+        const {type, id} = convertFromGlobalId(fair.id);
+        const countResult = await getMeetingByFairIdFilteredCount(id, filter);
+
+        const totalCount = countResult[0].anzahl;
+        const bounds = args.calculateBounds(totalCount);
+
+        const paginatedResults = await getMeetingByFairIdFilteredPaginated(id, filter, bounds);
+        const edges = paginatedResults.map((entity, index) => ({
+            cursor: offsetToCursor(bounds.startOffset + index),
+            node: convertIdToGlobalId('meeting', entity)
+        }));
+
+        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
+        return {
+            edges,
+            pageInfo
+        };
+    }
     //
     // @Authorized()
     // @FieldResolver(is => StaffMemberSearchConnection, {

@@ -1,6 +1,7 @@
-import {Field, ID, ObjectType} from 'type-graphql';
+import {Field, GraphQLISODateTime, ID, ObjectType} from 'type-graphql';
 import {User} from './User';
 import {Node} from './Node';
+import {Filter} from 'type-graphql-filter';
 
 @ObjectType( { implements: Node} )
 export class Meeting {
@@ -8,9 +9,11 @@ export class Meeting {
     id: string;
 
     @Field()
+    @Filter(['gt', 'gte', 'lt', 'lte'], () => GraphQLISODateTime)
     start: Date;
 
     @Field()
+    @Filter(['gt', 'gte', 'lt', 'lte'], () => GraphQLISODateTime)
     end: Date;
 
     @Field({nullable:true})
