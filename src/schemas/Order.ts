@@ -1,9 +1,9 @@
-import {Field, ObjectType} from 'type-graphql';
+import {Field, ID, ObjectType} from 'type-graphql';
 import {Node} from './Node';
 
 @ObjectType( { implements: Node} )
 export class Order {
-    @Field()
+    @Field(() => ID)
     id: string;
 
     @Field()
@@ -16,7 +16,7 @@ export class Order {
     changed: Date;
 
     @Field({nullable: true})
-    positions: JSON;
+    positions: string;
 
     @Field({nullable: true})
     currency: string;

@@ -1,13 +1,14 @@
-import {Field, ObjectType} from 'type-graphql';
+import {Field, ID, ObjectType} from 'type-graphql';
 import {Node} from './Node';
+import {MessageContent} from './MessageContent';
 
 @ObjectType( { implements: Node} )
 export class Message {
-    @Field()
+    @Field(() => ID)
     id: string;
 
     @Field({nullable: true})
-    content: JSON;
+    content: MessageContent;
 
     @Field({nullable: true})
     conversation: string;

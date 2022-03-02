@@ -42,6 +42,12 @@ import {Meeting} from '../schemas/Meeting';
 import {StaffMemberConnection} from '../schemas/StaffMemberConnection';
 import {GraphQLResolveInfo} from 'graphql';
 import {StaffMemberFilter} from '../filter/StaffMemberFilter';
+import {
+    getStaffMemberByFairIdCount,
+    getStaffMemberByFairIdPaginated
+} from '../queries/StaffMemberQueries';
+import {OrderConnection} from '../schemas/OrderConnection';
+import {getOrderByFairIdCount, getOrderByFairIdPaginated} from '../queries/OrderQueries';
 
 @Resolver((of) => Fair)
 export class FairResolver {
@@ -329,162 +335,63 @@ export class FairResolver {
     //
     // where "userProfile"."nameFirst" ilike '%ol%'
 
-    // @FieldResolver(is => StaffMemberConnection, {
-    //     description: "The entire staff of the fair.",
-    // })
-    // async staff(
-    //     @Args() args: ConnectionArgs,
-    //     @Args() filter: StaffMemberFilter,
-    //     @Root() fair: Fair,
-    //     @Info() info: GraphQLResolveInfo
-    // ): Promise<StaffMemberConnection> {
-    //     args.validateArgs();
+    @FieldResolver(is => StaffMemberConnection, {
+        description: "The entire staff of the fair.",
+    })
+    async staff(
+        @Args() args: ConnectionArgs,
+        @Root() fair: Fair,
+        @Info() info: GraphQLResolveInfo
+    ): Promise<StaffMemberConnection> {
+        args.validateArgs();
 
-    // SELECT
-    // "userProfile".*
-    // FROM
-    // fm."staffMember" INNER JOIN
-    // fm."user"                   ON "staffMember"."user" = "user".id INNER JOIN
-    // fm."userProfile"                    ON "user".id = "userProfile"."user"
-    //
-    // where "userProfile"."nameFirst" ilike '%ol%'
+        const {type, id} = convertFromGlobalId(fair.id);
+        const countResult = await getStaffMemberByFairIdCount(id);
 
-    //     const makeStaffMemberQueryClause = (ids: Array<string>) => {
-    //         const query: {
-    //             attendance?: { start: { $gte: Date }; end: { $lte: Date } } | undefined;
-    //             id: Array<string>;
-    //             isAvailable?: boolean | undefined;
-    //         } = {
-    //             id: ids,
-    //         };
-    //
-    //         if (filter.doesHave("isAttendingToday")) {
-    //             const startOfDay = moment.tz(fair.timezone).startOf("day").toDate();
-    //             const endOfDay = moment.tz(fair.timezone).endOf("day").toDate();
-    //             query.attendance = { start: { $gte: startOfDay }, end: { $lte: endOfDay } };
-    //         }
-    //
-    //         if (filter.doesHave("isAvailable")) {
-    //             query.isAvailable = mustExist(filter.get("isAvailable"));
-    //         }
-    //
-    //         return query;
-    //     };
-    //
-    //     // Handle the case when a `search` was provided.
-    //     // This is when a user wants to perform a freeform fulltext search through
-    //     // profile data to find staff members.
-    //     if (filter.doesHave("search")) {
-    //         if (!filter.doesHave("locale")) {
-    //             throw new InvalidArgumentError(
-    //                 "If you want to search profiles, you need to specify a `locale`."
-    //             );
-    //         }
-    //
-    //         const spanSearch = context.openSpanAt("search", info.path);
-    //         const results: Map<string, ElasticsearchHit> = await this._profileFairSearch.search({
-    //             fairId: fair.id,
-    //             inGroup: filter.get("inGroup", null),
-    //             locale: filter.get("locale"),
-    //             query: filter.get("search"),
-    //             zipSearchCountry: filter.get("zipCountry"),
-    //             searchColumns: filter.get("columns", null),
-    //             sortColumn: pageAndFilter.sortColumn,
-    //             sortDirection: pageAndFilter.sortDirection,
-    //         });
-    //         const matchedIds = Array.from(results.keys());
-    //         spanSearch.finish();
-    //
-    //         const list: Array<StaffMember> = await Connection.resolveAsList(
-    //             await context.messageContext.em.find(StaffMember, makeStaffMemberQueryClause(matchedIds)),
-    //             matchedIds
-    //         );
-    //         const page = Connection.pageFromList(pageAndFilter, list);
-    //         const pageInfo = Connection.getPageInfoFromList(pageAndFilter, list);
-    //
-    //         const searchResults = page.map(node => {
-    //             const result = mustExist(results.get(node.id));
-    //             const fields = Object.keys(result.highlight);
-    //             const highlights = new Array<SearchHighlight>();
-    //             for (const field of fields) {
-    //                 const match = mustExist(result.highlight[field])[0];
-    //                 highlights.push(new SearchHighlight(field, match));
-    //             }
-    //             return new StaffMemberSearchResult(node, highlights, result._source);
-    //         });
-    //         return StaffMemberSearchConnection.fromSubset({
-    //             column: toEntityField(pageAndFilter.sortColumn) as keyof StaffMemberSearchResult,
-    //             nodes: searchResults,
-    //             ...pageInfo,
-    //         });
-    //     }
-    //
-    //     // If no search was provided, scan the entire index for all valid IDs.
-    //     // We do this, instead of just selecting the staff members straight from
-    //     // the database, to ensure results are sorted as expected.
-    //     // This is a massive overhead, but is currently the only way to get
-    //     // consistent results.
-    //     const spanScan = context.openSpanAt("scan", info.path);
-    //     const indexElements = await this._profileFairSearch.scan({
-    //         fairId: fair.id,
-    //         inGroup: filter.get("inGroup", null),
-    //         locale: SupportedLocales.ENGLISH_UNITED_STATES,
-    //         sortColumn: pageAndFilter.sortColumn,
-    //         sortDirection: pageAndFilter.sortDirection,
-    //     });
-    //     spanScan.finish();
-    //
-    //     const batch = TaggedBatch.fromSubjects(indexElements, hit =>
-    //         mustExist(hit._source.staffMemberId)
-    //     );
-    //     const staffMembers = await batch.load(
-    //         ids => context.messageContext.em.find(StaffMember, makeStaffMemberQueryClause(ids)),
-    //         staffMember => staffMember.id,
-    //         LoaderBehavior.ErrorItem
-    //     );
-    //     const resultBatch: TaggedBatch<StaffMemberSearchResult> = await staffMembers.mapToBatch(
-    //         staffMember => {
-    //             const indexElement = mustExist(staffMembers.pullReferencedItem(batch, staffMember));
-    //             return new StaffMemberSearchResult(staffMember, [], indexElement._source);
-    //         }
-    //     );
-    //
-    //     const results = await resultBatch.mapToResultsOptimistic(result => result);
-    //     const page = Connection.pageFromList(pageAndFilter, results);
-    //     const pageInfo = Connection.getPageInfoFromList(pageAndFilter, results);
-    //
-    //     return StaffMemberSearchConnection.fromSubset({
-    //         column: toEntityField(pageAndFilter.sortColumn) as keyof StaffMemberSearchResult,
-    //         nodes: page,
-    //         ...pageInfo,
-    //     });
-    // }
+        const totalCount = countResult[0].anzahl;
+        const bounds = args.calculateBounds(totalCount);
 
-    // @Authorized()
-    // @FieldResolver(is => OrderConnection, {
-    //     description: "Orders created at this fair.",
-    // })
-    // async orders(
-    //     @Args() pageAndFilter: PageArguments,
-    //     @Root() fair: Fair,
-    //     @Ctx() context: ApolloContextAuthenticated
-    // ): Promise<OrderConnection> {
-    //     await this._safeguardPageArguments(pageAndFilter);
-    //
-    //     // We want all orders that are created at this fair.
-    //     const queryClause: {
-    //         fair: string;
-    //     } = {
-    //         fair: fair.id,
-    //     };
-    //
-    //     const repoTools = new PaginationHelper(context.messageContext.em);
-    //
-    //     const nodes = await repoTools.resolvePage(Order, queryClause, pageAndFilter);
-    //     const pageInfo = await repoTools.getPageInfo(Order, queryClause, pageAndFilter, nodes);
-    //
-    //     return OrderConnection.fromSubset({ pageRequest: pageAndFilter, nodes, ...pageInfo });
-    // }
-    // //#endregion
+        const paginatedResults = await getStaffMemberByFairIdPaginated(id,bounds);
+        const edges = paginatedResults.map((entity, index) => ({
+            cursor: offsetToCursor(bounds.startOffset + index),
+            node: convertIdToGlobalId('staffmember', entity)
+        }));
+
+        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
+        return {
+            edges,
+            pageInfo
+        };
+    }
+
+    @FieldResolver(is => OrderConnection, {
+        description: "Orders created at this fair.",
+    })
+    async orders(
+        @Args() args: ConnectionArgs,
+        @Root() fair: Fair
+    ): Promise<OrderConnection> {
+        args.validateArgs();
+
+        const {type, id} = convertFromGlobalId(fair.id);
+        const countResult = await getOrderByFairIdCount(id);
+
+        const totalCount = countResult[0].anzahl;
+        const bounds = args.calculateBounds(totalCount);
+
+        const paginatedResults = await getOrderByFairIdPaginated(id,bounds);
+        const edges = paginatedResults.map((entity, index) => ({
+            cursor: offsetToCursor(bounds.startOffset + index),
+            node: convertIdToGlobalId('order', entity)
+        }));
+
+        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
+        return {
+            edges,
+            pageInfo
+        };
+
+    }
+
 }
 

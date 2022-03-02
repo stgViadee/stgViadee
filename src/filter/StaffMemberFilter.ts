@@ -45,4 +45,56 @@ export class StaffMemberFilter {
     })
     zipCountry?: string;
 
+    @Field(is => GraphQLString, {
+        nullable: true,
+    })
+    email?: string;
+
+    @Field(is => GraphQLString, {
+        nullable: true,
+    })
+    salutation?: string;
+
+    @Field(is => GraphQLString, {
+        nullable: true,
+    })
+    firstName?: string;
+
+    @Field(is => GraphQLString, {
+        nullable: true,
+    })
+    lastName?: string;
+
+    @Field(is => GraphQLString, {
+        nullable: true,
+    })
+    country?: string;
+
+    @Field(is => GraphQLString, {
+        nullable: true,
+    })
+    language?: string;
+
+    @Field(is => GraphQLString, {
+        nullable: true,
+    })
+    primaryPhone?: string;
+
+    @Field(is => GraphQLString, {
+        nullable: true,
+    })
+    costUnit?: string;
+
+    @Field(is => GraphQLString, {
+        nullable: true,
+    })
+    tag?: string;
+
+    @Field(is => GraphQLString, {
+        nullable: true,
+    })
+    department?: string;
+
+
+
 }

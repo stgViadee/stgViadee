@@ -1,4 +1,4 @@
-import {Field, ObjectType} from 'type-graphql';
+import {Field, ID, ObjectType} from 'type-graphql';
 import {Node} from './Node';
 import {Timeframe} from './Timeframe';
 import {GraphQLBoolean} from 'graphql';
@@ -7,7 +7,7 @@ import {Filter} from 'type-graphql-filter';
 @ObjectType( { implements: Node} )
 export class StaffMember {
 
-    @Field()
+    @Field(() => ID)
     id: string;
 
     @Field()
@@ -41,7 +41,7 @@ export class StaffMember {
     @Field({nullable: true})
     hid: string;
 
-    @Field( {nullable : true})
+    @Field( () => [Timeframe], {nullable : true})
     @Filter(['eq', ], () => GraphQLBoolean)
     attendance: [Timeframe]
 }
