@@ -21,10 +21,12 @@ import {ConversationResolver} from './resolvers/ConversationResolver';
 import {FairInfoResolver} from './resolvers/FairInfoResolver';
 import {FairProductResolver} from './resolvers/FairProductResolver';
 import {FairResourceResolver} from './resolvers/FairResourceResolver';
+import {ImageResolver} from './resolvers/ImageResolver';
+import {LanguageResolver} from './resolvers/LanguageResolver';
 
 async function main() {
     const schema = await buildSchema({
-        resolvers: [FairResolver, FairInfoResolver, FairProductResolver, FairResourceResolver, DepartmentResolver, ConversationResolver, NodeResolver, OrganizationResolver, DocumentResolver, DeviceResolver, FairDayResolver, FairDeviceResolver, UserResolver, UserGroupResolver, BoothResolver, MeetingResolver, CompanyResolver],
+        resolvers: [FairResolver, FairInfoResolver, LanguageResolver, ImageResolver, FairProductResolver, FairResourceResolver, DepartmentResolver, ConversationResolver, NodeResolver, OrganizationResolver, DocumentResolver, DeviceResolver, FairDayResolver, FairDeviceResolver, UserResolver, UserGroupResolver, BoothResolver, MeetingResolver, CompanyResolver],
         emitSchemaFile: true,
     });
 

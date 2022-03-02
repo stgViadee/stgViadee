@@ -16,7 +16,7 @@ export class Image {
     contentType: string;
 
     @Field({nullable:true})
-    meta: JSON;
+    meta: string;
 
     @Field({nullable:true})
     url: string;

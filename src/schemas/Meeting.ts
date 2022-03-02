@@ -2,6 +2,8 @@ import {Field, GraphQLISODateTime, ID, ObjectType} from 'type-graphql';
 import {User} from './User';
 import {Node} from './Node';
 import {Filter} from 'type-graphql-filter';
+import {FairResource} from './FairResource';
+import {Guest} from './Guest';
 
 @ObjectType( { implements: Node} )
 export class Meeting {
@@ -34,7 +36,7 @@ export class Meeting {
     @Field({nullable: true})
     display: string;
 
-    @Field()
+    @Field(() => FairResource)
     resource: string;
 
     @Field(() => User, {nullable:true})
@@ -54,4 +56,7 @@ export class Meeting {
 
     @Field(() => [User], {nullable:true})
     attendees: [User];
+
+    @Field(() => [Guest], {nullable:true})
+    guests: [Guest];
 }

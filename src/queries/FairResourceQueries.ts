@@ -2,14 +2,21 @@ import db, {sql} from '../dbconfig/dbconfig';
 
 export function getAllFairResources() {
     return db.query(sql `
-        SELECT * FROM fm.fairResource
+        SELECT * FROM fm."fairResource"
     `);
 }
 
 export function getFairResourceById(id : string) {
     return db.query(sql `
-        SELECT * FROM fm.fairResource
+        SELECT * FROM fm."fairResource"
         where id = ${id}
+    `);
+}
+
+export function getFairResourceByIdArray(ids :  Readonly<string[]>) {
+    return db.query(sql `
+        SELECT * FROM fm."fairResource"
+        where id = ANY (${ids}::uuid[])
     `);
 }
 

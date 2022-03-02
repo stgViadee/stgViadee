@@ -35,7 +35,7 @@ export function getMeetingByFairIdFilteredCount(fairId : string, filter: any) {
 
 export function getMeetingByFairIdFilteredPaginated(fairId : string, filter: any, bounds : any) {
     return db.query(sql`
-            select *
+            select meeting.*
             from fm.meeting INNER JOIN
                  fm."fairResource" ON meeting.resource = "fairResource".id AND
                                       "fairResource".fair = ${fairId}
