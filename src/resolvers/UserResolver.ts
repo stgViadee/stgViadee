@@ -7,23 +7,22 @@ import DataLoader from 'dataloader';
 
 @Resolver((of) => User)
 export class UserResolver {
-    private users: User[] = []
 
     @Query((returns) => [User], { nullable: true })
     async getUsers(): Promise<User[]> {
-        this.users = await getAllUsers();
-        return convertIdsToGlobalId('user', this.users);
+        const users = await getAllUsers();
+        return convertIdsToGlobalId('user', users);
     }
 
     @Query((returns) => User, { nullable: true })
     async user(@Arg("id") userId : string): Promise<Maybe<User>> {
-        this.users = await getUserById(convertFromGlobalId(userId).id)
-        return convertIdToGlobalId('user', this.users[0]);
+        const users = await getUserById(convertFromGlobalId(userId).id)
+        return convertIdToGlobalId('user', users[0]);
     }
 
     @FieldResolver(is => User, {description: ''})
     @Loader<string, User>(async (ids) => {  // batchLoadFn
-        var result = await getUsersByIdArray(ids);
+        const result = await getUsersByIdArray(ids);
         return convertIdsToGlobalId('user', result);
     })
     async createdBy(@Root() user: User) {

@@ -9,32 +9,29 @@ import {convertFromGlobalId, convertIdsToGlobalId, convertIdToGlobalId} from '..
 
 @Resolver((of) => Device)
 export class DeviceResolver {
-    private devices: Device[] = []
-    private users: User[] = []
-    private tokens: Token[] = []
 
     @Query((returns) => [Device], { nullable: true })
     async getDevices(): Promise<Device[]> {
-        this.devices = await getAllDevices();
-        return convertIdsToGlobalId('device', this.devices);
+        const devices = await getAllDevices();
+        return convertIdsToGlobalId('device', devices);
     }
 
     @Query((returns) => Device, { nullable: true })
     async device(@Arg("id") deviceId : string): Promise<Maybe<Device>> {
-        this.devices = await getDeviceById(convertFromGlobalId(deviceId).id);
-        return convertIdToGlobalId('device', this.devices[0]);
+        const devices = await getDeviceById(convertFromGlobalId(deviceId).id);
+        return convertIdToGlobalId('device', devices[0]);
     }
 
     @FieldResolver(is => User, {description: ''})
-    async createdBy(@Root() device: Device): Promise<User> {
-        this.users = await getUserById(device.user);
-        return convertIdToGlobalId('user', this.users[0]);
+    async user(@Root() device: Device): Promise<User> {
+        const users = await getUserById(device.user);
+        return convertIdToGlobalId('user', users[0]);
     }
 
     @FieldResolver(is => Token, {description: ''})
     async token(@Root() device: Device): Promise<Token> {
-        this.tokens = await getTokenById(device.token);
-        return this.tokens[0];
+        const tokens = await getTokenById(device.token);
+        return tokens[0];
     }
 
 }

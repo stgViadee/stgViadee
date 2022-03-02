@@ -7,10 +7,8 @@ import {ConversationConnection} from '../schemas/ConversationConnection';
 import {ConnectionArgs} from '../schemas/relay/ConnectionArgs';
 import {offsetToCursor} from 'graphql-relay';
 import {generateFilterType} from 'type-graphql-filter';
-import {FairInfo} from '../schemas/FairInfo';
 import {getConversationsByUserIdFiltered, getConversationsByUserIdFilteredCount} from '../queries/ConversationQueries';
 import {MessageConnection} from '../schemas/MessageConnection';
-import {getFairInfoByFairIdFilteredCount, getFairInfoByFairIdFilteredPaginated} from '../queries/FairInfoQueries';
 import {getMessageByConversationId, getMessageByConversationIdCount} from '../queries/MessageQueries';
 
 @Resolver((of) => Conversation)

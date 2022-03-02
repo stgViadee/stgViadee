@@ -10,16 +10,10 @@ import {
 import {getFairById} from '../queries/FairQueries';
 import { Node } from '../schemas/Node'
 import {convertFromGlobalId, convertIdToGlobalId} from '../schemas/relay/GlobalIdHandler';
-import {Fair} from '../schemas/Fair';
 import {getUserById} from '../queries/UserQueries';
-import {User} from '../schemas/User';
 
 @Resolver(() => Node)
 export class NodeResolver {
-
-    private nodeResult: Node[] = [];
-    private fairResult: Fair[] = [];
-    private userResult: User[] = [];
 
     @FieldResolver()
     globalId(
@@ -34,19 +28,19 @@ export class NodeResolver {
     ): Promise<Node | undefined> {
         const {type, id} = convertFromGlobalId(globalId)
 
+
         if (type === 'fair') {
-            var fairResult = await getFairById(id);
+            const fairResult = await getFairById(id);
             return convertIdToGlobalId('fair', fairResult[0]);
         }
         if (type === 'user') {
-            var userResult = await getUserById(id);
+            const userResult = await getUserById(id);
             return convertIdToGlobalId('user', userResult[0]);
         }
 
-        return this.nodeResult[0];
+        return null;
     }
 
-    // TODO: DataLoader
     @Query(() => Node, {
         nullable: true,
         description: 'Fetches an object given its global ID.'

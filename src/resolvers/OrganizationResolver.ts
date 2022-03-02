@@ -7,25 +7,23 @@ import {convertFromGlobalId, convertIdsToGlobalId, convertIdToGlobalId} from '..
 
 @Resolver((of) => Organization)
 export class OrganizationResolver {
-    private organizations: Organization[] = []
-    private users: User[] = []
 
     @Query((returns) => [Organization], { nullable: true })
     async getOrganizations(): Promise<Organization[]> {
-        this.organizations = await getAllOrganizations();
-        return convertIdsToGlobalId('organization', this.organizations);
+        const organizations = await getAllOrganizations();
+        return convertIdsToGlobalId('organization', organizations);
     }
 
     @Query((returns) => Organization, { nullable: true })
     async organization(@Arg("id") organizationId : string): Promise<Maybe<Organization>> {
-        this.organizations = await getOrganizationById(convertFromGlobalId(organizationId).id)
-        return convertIdToGlobalId('organization', this.organizations[0]);
+        const organizations = await getOrganizationById(convertFromGlobalId(organizationId).id)
+        return convertIdToGlobalId('organization', organizations[0]);
     }
 
     @FieldResolver(is => User, {description: ''})
     async author(@Root() organization: Organization): Promise<User> {
-        this.users = await getUserById(organization.author)
-        return convertIdToGlobalId('user', this.users[0]);
+        const users = await getUserById(organization.author)
+        return convertIdToGlobalId('user', users[0]);
     }
 
 }

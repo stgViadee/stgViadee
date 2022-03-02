@@ -8,25 +8,23 @@ import {convertFromGlobalId, convertIdsToGlobalId, convertIdToGlobalId} from '..
 
 @Resolver((of) => Company)
 export class CompanyResolver {
-    private companys: Company[] = []
-    private organizations: Organization[] = []
 
     @Query((returns) => [Company], { nullable: true })
     async getCompanys(): Promise<Company[]> {
-        this.companys = await getAllCompanies();
-        return convertIdsToGlobalId('company', this.companys);
+        const companys = await getAllCompanies();
+        return convertIdsToGlobalId('company', companys);
     }
 
     @Query((returns) => Company, { nullable: true })
     async company(@Arg("id") companyId : string): Promise<Maybe<Company>> {
-        this.companys = await getCompanyById(convertFromGlobalId(companyId).id);
-        return convertIdToGlobalId('company', this.companys[0]);
+        const companys = await getCompanyById(convertFromGlobalId(companyId).id);
+        return convertIdToGlobalId('company', companys[0]);
     }
 
     @FieldResolver(is => Organization, {description: ''})
     async organization(@Root() company: Company): Promise<Organization> {
-        this.organizations = await getOrganizationById(company.organization);
-        return convertIdToGlobalId('orangization', this.organizations[0]);
+        const organizations = await getOrganizationById(company.organization);
+        return convertIdToGlobalId('orangization', organizations[0]);
     }
 
 }

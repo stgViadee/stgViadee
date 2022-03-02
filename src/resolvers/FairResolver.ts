@@ -51,19 +51,18 @@ import {getOrderByFairIdCount, getOrderByFairIdPaginated} from '../queries/Order
 
 @Resolver((of) => Fair)
 export class FairResolver {
-    private fairs: Fair[] = [];
 
     @Query((returns) => [Fair], {nullable: true})
     async getFairs(): Promise<Fair[]> {
-        this.fairs = await getAllFairs();
-        return convertIdsToGlobalId('fair', this.fairs);
+        const fairs = await getAllFairs();
+        return convertIdsToGlobalId('fair', fairs);
     }
 
 
     @Query((returns) => Fair, {nullable: true})
     async fair(@Arg('id') id: string): Promise<Maybe<Fair>> {
-        this.fairs = await getFairById(convertFromGlobalId(id).id);
-        return convertIdToGlobalId('fair', this.fairs[0]);
+        const fairs = await getFairById(convertFromGlobalId(id).id);
+        return convertIdToGlobalId('fair', fairs[0]);
     }
 
     @FieldResolver(() => FairFeatures, {description: 'The feature set for this fair.'})

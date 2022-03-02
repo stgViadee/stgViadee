@@ -9,19 +9,18 @@ import {convertIdToGlobalId} from '../schemas/relay/GlobalIdHandler';
 @Resolver((of) => Document)
 export class DocumentResolver {
 
-    private paginatedResults: Document[] = [];
-
     @Query((returns) => DocumentConnection, {nullable: true})
     async documents(@Args() args: ConnectionArgs): Promise<DocumentConnection> {
         args.validateArgs();
-        const userId = ""; // TODO an dieser Stelle muss der User noch aus dem Kontext befüllt werden
+        const userIdMock = 'f6265805-0dab-4de0-9297-80ed6e916b44';
+        const userId = userIdMock;  // TODO userId aus Kontext laden -> hier temp. Mock
         const countResult = await getDocumentsByFileStoreByUserIdCount(userId);
 
         const totalCount = countResult[0].anzahl;
         const bounds = args.calculateBounds(totalCount);
 
-        this.paginatedResults = await getDocumentsByFileStoreByUserPaginated(userId, bounds);
-        const edges = this.paginatedResults.map((entity, index) => ({
+        const paginatedResults = await getDocumentsByFileStoreByUserPaginated(userId, bounds);
+        const edges = paginatedResults.map((entity, index) => ({
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('document', entity)
         }));

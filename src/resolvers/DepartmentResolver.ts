@@ -7,24 +7,22 @@ import {convertFromGlobalId, convertIdsToGlobalId, convertIdToGlobalId} from '..
 
 @Resolver((of) => Department)
 export class DepartmentResolver {
-    private departments: Department[] = []
-    private organizations: Organization[] = []
 
     @Query((returns) => [Department], { nullable: true })
     async getDepartments(): Promise<Department[]> {
-        this.departments = await getAllDepartments();
-        return convertIdsToGlobalId('department', this.departments);
+        const departments = await getAllDepartments();
+        return convertIdsToGlobalId('department', departments);
     }
 
     @Query((returns) => Department, { nullable: true })
     async department(@Arg("id") departmentId : string): Promise<Maybe<Department>> {
-        this.departments = await getDepartmentById(convertFromGlobalId(departmentId).id);
-        return convertIdToGlobalId('department', this.departments[0]);
+        const departments = await getDepartmentById(convertFromGlobalId(departmentId).id);
+        return convertIdToGlobalId('department', departments[0]);
     }
 
     @FieldResolver(is => Organization, {description: ''})
     async organization(@Root() department: Department): Promise<Organization> {
-        this.organizations = await getOrganizationById(department.organization);
-        return convertIdToGlobalId('organization', this.organizations[0]);
+        const organizations = await getOrganizationById(department.organization);
+        return convertIdToGlobalId('organization', organizations[0]);
     }
 }

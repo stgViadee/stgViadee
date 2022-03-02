@@ -7,31 +7,29 @@ import {convertFromGlobalId, convertIdsToGlobalId, convertIdToGlobalId} from '..
 
 @Resolver((of) => Meeting)
 export class MeetingResolver {
-    private meetings: Meeting[] = []
-    private users: User[] = []
 
     @Query((returns) => [Meeting], { nullable: true })
     async getMeetings(): Promise<Meeting[]> {
-        this.meetings = await getAllMeetings();
-        return convertIdsToGlobalId('meeting', this.meetings);
+        const meetings = await getAllMeetings();
+        return convertIdsToGlobalId('meeting', meetings);
     }
 
     @Query((returns) => Meeting, { nullable: true })
     async meeting(@Arg("id") meetingId : string): Promise<Maybe<Meeting>> {
-        this.meetings = await getMeetingById(convertFromGlobalId(meetingId).id);
-        return convertIdToGlobalId('meeting', this.meetings[0]);
+        const meetings = await getMeetingById(convertFromGlobalId(meetingId).id);
+        return convertIdToGlobalId('meeting', meetings[0]);
     }
 
     @FieldResolver(is => User, {description: ''})
     async organizer(@Root() meeting: Meeting): Promise<User> {
-        this.users = await getUserById(meeting.organizer);
-        return convertIdToGlobalId('user', this.users[0]);
+        const users = await getUserById(meeting.organizer);
+        return convertIdToGlobalId('user', users[0]);
     }
 
     @FieldResolver(is => [User], {description: ''})
     async attendees(@Root() meeting: Meeting): Promise<Iterable<User>> {
-        this.users = await getUserAttendingMeetingByMeetingId(convertFromGlobalId(meeting.id).id)
-        return convertIdsToGlobalId('user', this.users);
+        const users = await getUserAttendingMeetingByMeetingId(convertFromGlobalId(meeting.id).id)
+        return convertIdsToGlobalId('user', users);
     }
 
 }

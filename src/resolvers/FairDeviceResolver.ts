@@ -9,9 +9,6 @@ import {getDeviceById} from '../queries/DeviceQueries';
 
 @Resolver((of) => FairDevice)
 export class FairDeviceResolver {
-    private fairDevices: FairDevice[] = [];
-    private devices: Device[] = [];
-    private fairs: Fair[] = [];
 
     @Query(() => FairDevice, {nullable: true})
     async fairDevice(@Arg('deviceId', () => ID, {nullable: true}) deviceId: string,
@@ -23,26 +20,27 @@ export class FairDeviceResolver {
             throw new Error('You can only specify either `deviceId` or `id`.');
         }
 
+        var fairDevices;
         if (fairDeviceId) {
-        this.fairDevices = await getFairDeviceById(convertFromGlobalId(fairDeviceId).id);
+        fairDevices = await getFairDeviceById(convertFromGlobalId(fairDeviceId).id);
         } else {
-        this.fairDevices = await getFairDeviceByDeviceId(convertFromGlobalId(deviceId).id);
+        fairDevices = await getFairDeviceByDeviceId(convertFromGlobalId(deviceId).id);
         }
 
-        return convertIdToGlobalId('fairdevice', this.fairDevices[0]);
+        return convertIdToGlobalId('fairdevice', fairDevices[0]);
 
     }
 
     @FieldResolver(is => Fair, {description: ''})
     async fair(@Root() fairDevice: FairDevice): Promise<Fair> {
-        this.fairs = await getFairById(fairDevice.fair);
-        return convertIdToGlobalId('fair', this.fairs[0]);
+        const fairs = await getFairById(fairDevice.fair);
+        return convertIdToGlobalId('fair', fairs[0]);
     }
 
     @FieldResolver(is => Device, {description: ''})
     async device(@Root() fairDevice: FairDevice): Promise<Device> {
-        this.devices = await getDeviceById(fairDevice.device);
-        return convertIdToGlobalId('device', this.devices[0]);
+        const devices = await getDeviceById(fairDevice.device);
+        return convertIdToGlobalId('device', devices[0]);
     }
 
 }
