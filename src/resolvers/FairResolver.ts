@@ -277,13 +277,16 @@ export class FairResolver {
     ): Promise<FairDeviceConnection> {
         args.validateArgs();
 
+        const userIdMock = 'f6265805-0dab-4de0-9297-80ed6e916b44';
+        const userId = userIdMock;  // TODO userId aus Kontext laden -> hier temp. Mock
+
         const {type, id} = convertFromGlobalId(fair.id);
-        const countResult = await getFairDeviceByFairIdCount(id);
+        const countResult = await getFairDeviceByFairIdCount(id, userId);
 
         const totalCount = countResult[0].anzahl;
         const bounds = args.calculateBounds(totalCount);
 
-        const paginatedResults = await getFairDeviceByFairIdPaginated(id, bounds);
+        const paginatedResults = await getFairDeviceByFairIdPaginated(id, userId, bounds);
         const edges = paginatedResults.map((entity, index) => ({
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('fairdevice', entity)
@@ -324,15 +327,6 @@ export class FairResolver {
             pageInfo
         };
     }
-
-    // SELECT
-    // "userProfile".*
-    // FROM
-    // fm."staffMember" INNER JOIN
-    // fm."user"                   ON "staffMember"."user" = "user".id INNER JOIN
-    // fm."userProfile"                    ON "user".id = "userProfile"."user"
-    //
-    // where "userProfile"."nameFirst" ilike '%ol%'
 
     @FieldResolver(is => StaffMemberConnection, {
         description: "The entire staff of the fair.",

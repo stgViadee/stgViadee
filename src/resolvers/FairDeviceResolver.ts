@@ -13,6 +13,10 @@ export class FairDeviceResolver {
     @Query(() => FairDevice, {nullable: true})
     async fairDevice(@Arg('deviceId', () => ID, {nullable: true}) deviceId: string,
                      @Arg('id', () => ID, {nullable: true}) fairDeviceId: string): Promise<FairDevice> {
+
+        const userIdMock = 'f6265805-0dab-4de0-9297-80ed6e916b44';
+        const userId = userIdMock;  // TODO userId aus Kontext laden -> hier temp. Mock
+
         if (!deviceId && !fairDeviceId) {
             throw new Error('You have to either specify `deviceId` or `id`.');
         }
@@ -22,9 +26,9 @@ export class FairDeviceResolver {
 
         var fairDevices;
         if (fairDeviceId) {
-        fairDevices = await getFairDeviceById(convertFromGlobalId(fairDeviceId).id);
+        fairDevices = await getFairDeviceById(convertFromGlobalId(fairDeviceId).id, userId);
         } else {
-        fairDevices = await getFairDeviceByDeviceId(convertFromGlobalId(deviceId).id);
+        fairDevices = await getFairDeviceByDeviceId(convertFromGlobalId(deviceId).id, userId);
         }
 
         return convertIdToGlobalId('fairdevice', fairDevices[0]);

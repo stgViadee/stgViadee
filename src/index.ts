@@ -18,10 +18,13 @@ import {ApolloServerLoaderPlugin} from 'type-graphql-dataloader';
 import {NodeResolver} from './resolvers/NodeResolver';
 import {OrganizationResolver} from './resolvers/OrganizationResolver';
 import {ConversationResolver} from './resolvers/ConversationResolver';
+import {FairInfoResolver} from './resolvers/FairInfoResolver';
+import {FairProductResolver} from './resolvers/FairProductResolver';
+import {FairResourceResolver} from './resolvers/FairResourceResolver';
 
 async function main() {
     const schema = await buildSchema({
-        resolvers: [FairResolver, DepartmentResolver, ConversationResolver, NodeResolver, OrganizationResolver, DocumentResolver, DeviceResolver, FairDayResolver, FairDeviceResolver, UserResolver, UserGroupResolver, BoothResolver, MeetingResolver, CompanyResolver],
+        resolvers: [FairResolver, FairInfoResolver, FairProductResolver, FairResourceResolver, DepartmentResolver, ConversationResolver, NodeResolver, OrganizationResolver, DocumentResolver, DeviceResolver, FairDayResolver, FairDeviceResolver, UserResolver, UserGroupResolver, BoothResolver, MeetingResolver, CompanyResolver],
         emitSchemaFile: true,
     });
 

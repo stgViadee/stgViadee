@@ -54,6 +54,25 @@ export function getMeetingByFairIdFilteredPaginated(fairId : string, filter: any
     `);
 }
 
+export function getMeetingByResouceIdCount(resourceId : string) {
+    return db.query(sql`
+            select count(*) as anzahl 
+            from fm.meeting INNER JOIN 
+                 fm."fairResource" ON meeting.resource = ${resourceId}
+    `);
+}
+
+export function getMeetingByResourceIdPaginated(resourceId : string, bounds : any) {
+    return db.query(sql`
+            select *
+            from fm.meeting INNER JOIN
+                 fm."fairResource" ON meeting.resource = ${resourceId}
+            order by meeting."id" asc      
+            LIMIT ${bounds.limit}
+        OFFSET ${bounds.offset}
+    `);
+}
+
 
 
 

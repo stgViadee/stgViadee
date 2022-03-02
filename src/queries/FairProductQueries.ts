@@ -2,13 +2,13 @@ import db, {sql} from '../dbconfig/dbconfig';
 
 export function getAllFairProducts() {
     return db.query(sql `
-        SELECT * FROM fm.fairProduct
+        SELECT * FROM fm."fairProduct"
     `);
 }
 
 export function getFairProductById(id : string) {
     return db.query(sql `
-        SELECT * FROM fm.fairProduct
+        SELECT * FROM fm."fairProduct"
         where id = ${id}
     `);
 }

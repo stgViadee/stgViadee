@@ -2,6 +2,7 @@ import {Field, GraphQLISODateTime, ID, ObjectType} from 'type-graphql';
 import {Node} from './Node';
 import {Filter} from 'type-graphql-filter';
 import {GraphQLBoolean} from 'graphql';
+import {Fair} from './Fair';
 
 @ObjectType( { implements: Node} )
 export class FairResource {
@@ -17,7 +18,7 @@ export class FairResource {
     @Field({nullable:true})
     location: string;
 
-    @Field({nullable:true})
+    @Field(() => Fair, {nullable:true})
     fair: string;
 
     @Field({nullable:true})

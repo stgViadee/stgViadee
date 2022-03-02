@@ -1,5 +1,7 @@
 import {Field, ID, ObjectType} from 'type-graphql';
 import {Node} from './Node';
+import {Fair} from './Fair';
+import {Product} from './Product';
 
 @ObjectType( { implements: Node} )
 export class FairProduct {
@@ -18,10 +20,10 @@ export class FairProduct {
     @Field({nullable:true})
     size: string;
 
-    @Field({nullable:true})
+    @Field(() => Fair, {nullable:true})
     fair: string;
 
-    @Field({nullable:true})
+    @Field(() => Product, {nullable:true})
     product: string;
 
     @Field({nullable:true})
