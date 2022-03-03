@@ -69,4 +69,11 @@ export function getFairDeviceByFairIdPaginated(fairId : string, actorId: string,
         `);
 }
 
+export function getConversationsByIdArray(ids : Readonly<string[]>) {
+    return db.query(sql`
+        select * from fm.conversation
+        where id = ANY (${ids}::uuid[])
+    `);
+}
+
 

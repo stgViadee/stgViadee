@@ -4,7 +4,6 @@ import {User} from '../schemas/User';
 import {getAllMeetings, getMeetingById} from '../queries/MeetingQueries';
 import {
     getUserAttendingMeetingByMeetingId,
-    getUserById,
     getUsersByIdArray
 } from '../queries/UserQueries';
 import {convertFromGlobalId, convertIdsToGlobalId, convertIdToGlobalId} from '../schemas/relay/GlobalIdHandler';
@@ -13,14 +12,16 @@ import {getFairResourceByIdArray} from '../queries/FairResourceQueries';
 import {Loader} from 'type-graphql-dataloader';
 import DataLoader from 'dataloader';
 import {Guest} from '../schemas/Guest';
-import {getGuestsByMeetingId} from './GuestQueries';
+import {getGuestsByMeetingId} from '../queries/GuestQueries';
+import {RsvpState} from '../schemas/RsvpState';
+import {getRsvpStateByMeetingId} from '../queries/RsvpStateQueries';
 
 @Resolver((of) => Meeting)
 export class MeetingResolver {
 
     @FieldResolver(is => User, {description: ''})
     @Loader<string, User>(async (ids) => {  // batchLoadFn
-        var result = await getUsersByIdArray(ids);
+        let result = await getUsersByIdArray(ids);
         return convertIdsToGlobalId('user', result);
     })
     async organizer(@Root() meeting: Meeting) {
@@ -30,7 +31,7 @@ export class MeetingResolver {
 
     @FieldResolver(is => FairResource, {description: ''})
     @Loader<string, FairResource>(async (ids) => {  // batchLoadFn
-        var result = await getFairResourceByIdArray(ids);
+        let result = await getFairResourceByIdArray(ids);
         return convertIdsToGlobalId('fairResource', result);
     })
     async resource(@Root() meeting: Meeting) {
@@ -46,7 +47,7 @@ export class MeetingResolver {
 
     @FieldResolver(is => [Guest], {description: ''})
     async guests(@Root() meeting: Meeting): Promise<Guest[]> {
-        var {type, id } = convertFromGlobalId(meeting.id);
+        let {type, id } = convertFromGlobalId(meeting.id);
         const guests = await getGuestsByMeetingId(id)
         return convertIdsToGlobalId('guest', guests);
     }
@@ -62,6 +63,15 @@ export class MeetingResolver {
     async meeting(@Arg("id") meetingId : string): Promise<Maybe<Meeting>> {
         const meetings = await getMeetingById(convertFromGlobalId(meetingId).id);
         return convertIdToGlobalId('meeting', meetings[0]);
+    }
+
+    @FieldResolver(is => [RsvpState], {
+        description: "The RSVP responses received for this meeting so far.",
+    })
+    async rsvpStates(@Root() meeting: Meeting): Promise<Iterable<RsvpState>> {
+        let {type, id} = convertFromGlobalId(meeting.id);
+        const rsvpStates = await getRsvpStateByMeetingId(id);
+        return convertIdsToGlobalId('rsvpState', rsvpStates);
     }
 
 

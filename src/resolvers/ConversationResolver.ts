@@ -25,8 +25,8 @@ export class ConversationResolver {
 
         const userIdMock = 'f6265805-0dab-4de0-9297-80ed6e916b44';
         const userId = userIdMock;  // TODO userId aus Kontext laden -> hier temp. Mock
-        var fairId;
-        var organizationId;
+        let fairId;
+        let organizationId;
         if (filter && filter.fair_eq) {
             fairId = convertFromGlobalId(filter.fair_eq).id;
         }

@@ -1,6 +1,8 @@
 import {Field, ID, ObjectType} from 'type-graphql';
 import {Node} from './Node';
 import {MessageContent} from './MessageContent';
+import {User} from './User';
+import {Conversation} from './Conversation';
 
 @ObjectType( { implements: Node} )
 export class Message {
@@ -10,10 +12,10 @@ export class Message {
     @Field({nullable: true})
     content: MessageContent;
 
-    @Field({nullable: true})
+    @Field(() => Conversation, {nullable: true})
     conversation: string;
 
-    @Field({nullable: true})
+    @Field(() => User, {nullable: true})
     author: string;
 
     @Field({nullable: true})

@@ -72,7 +72,7 @@ export class FairResolver {
 
     @FieldResolver(is => User, {description: ''})
     @Loader<string, User>(async (ids) => {  // batchLoadFn
-        var result = await getUsersByIdArray(ids);
+        let result = await getUsersByIdArray(ids);
         return convertIdsToGlobalId('user', result);
     })
     async author(@Root() fair: Fair) {
@@ -82,7 +82,7 @@ export class FairResolver {
 
     @FieldResolver(is => Organization, {description: ''})
     @Loader<string, Organization>(async (ids) => {  // batchLoadFn
-        var result = await getOrganizationsByIdArray(ids);
+        let result = await getOrganizationsByIdArray(ids);
         return convertIdsToGlobalId('organization', result);
     })
     async organization(@Root() fair: Fair) {

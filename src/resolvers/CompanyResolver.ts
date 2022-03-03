@@ -1,6 +1,5 @@
 import {Arg, FieldResolver, Maybe, Query, Resolver, Root} from 'type-graphql';
 import {Company} from '../schemas/Company';
-import db, {sql} from '../dbconfig/dbconfig';
 import {Organization} from '../schemas/Organization';
 import {getAllCompanies, getCompanyById} from '../queries/CompanyQueries';
 import {getOrganizationById} from '../queries/OrganizationQueries';

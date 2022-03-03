@@ -64,7 +64,7 @@ export function getMeetingByResouceIdCount(resourceId : string) {
 
 export function getMeetingByResourceIdPaginated(resourceId : string, bounds : any) {
     return db.query(sql`
-            select *
+            select meeting.*
             from fm.meeting INNER JOIN
                  fm."fairResource" ON meeting.resource = ${resourceId}
             order by meeting."id" asc      

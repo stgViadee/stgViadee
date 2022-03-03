@@ -24,7 +24,7 @@ export class FairDeviceResolver {
             throw new Error('You can only specify either `deviceId` or `id`.');
         }
 
-        var fairDevices;
+        let fairDevices;
         if (fairDeviceId) {
         fairDevices = await getFairDeviceById(convertFromGlobalId(fairDeviceId).id, userId);
         } else {
