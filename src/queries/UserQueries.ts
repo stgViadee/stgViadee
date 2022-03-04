@@ -28,6 +28,31 @@ export function getUsersByIdArray(ids : Readonly<string[]>) {
     `);
 }
 
+export function getUserByOrganizationIdCount(organizationId: string) {
+    return db.query(sql`
+        SELECT count(*) as anzahl
+        FROM
+            fm."user" INNER JOIN 
+            fm."userProfile" ON "userProfile".user = "user".id AND 
+                                "userProfile".organization = ${organizationId}                    
+    `);
+}
+
+export function getUserByOrganizationIdPaginated(organizationId: string, bounds : any) {
+    return db.query(sql`
+        SELECT *
+        FROM
+            fm."user" INNER JOIN 
+            fm."userProfile" ON "userProfile".user = "user".id AND 
+                                "userProfile".organization = ${organizationId}
+        ORDER BY "user".id asc                        
+            LIMIT ${bounds.limit}
+        OFFSET ${bounds.offset}
+    `);
+}
+
+
+
 
 
 

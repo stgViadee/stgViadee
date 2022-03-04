@@ -1,7 +1,7 @@
-import {Arg, Args, FieldResolver, Maybe, Query, Resolver, Root} from 'type-graphql';
+import {Arg, Args, FieldResolver, Info, Maybe, Query, Resolver, Root} from 'type-graphql';
 import {Organization} from '../schemas/Organization';
 import {User} from '../schemas/User';
-import {getUserById} from '../queries/UserQueries';
+import {getUserById, getUserByOrganizationIdCount, getUserByOrganizationIdPaginated} from '../queries/UserQueries';
 import {getAllOrganizations, getOrganizationById} from '../queries/OrganizationQueries';
 import {convertFromGlobalId, convertIdsToGlobalId, convertIdToGlobalId} from '../schemas/relay/GlobalIdHandler';
 import {ConnectionArgs} from '../schemas/relay/ConnectionArgs';
@@ -10,7 +10,11 @@ import {FairConnection} from '../schemas/FairConnection';
 import {getFairsByOrganizationIdCount, getFairsByOrganizationIdPaginated} from '../queries/FairQueries';
 import {TagConnection} from '../schemas/TagConnection';
 import {getTagsByOrganizationIdCount, getTagsByOrganizationIdPaginated} from '../queries/TagQueries';
-import {getCompaniesByOrganizationIdCount, getCompaniesByOrganizationIdPaginated} from '../queries/StaffMemberQueries';
+import {
+    getCompaniesByOrganizationIdCount,
+    getCompaniesByOrganizationIdPaginated,
+    getStaffMemberByFairIdCount, getStaffMemberByFairIdPaginated
+} from '../queries/StaffMemberQueries';
 import {CompanyConnection} from '../schemas/CompanyConnection';
 import {DepartmentConnection} from '../schemas/DepartmentConnection';
 import {
@@ -29,6 +33,12 @@ import {
     getUserGroupsByOrganizationIdPaginated
 } from '../queries/UserGroupQueries';
 import {UserGroup} from '../schemas/UserGroup';
+import {CreditConnection} from '../schemas/CreditConnection';
+import {getCreditsByOrganizationIdCount, getCreditsByOrganizationIdPaginated} from '../queries/CreditQueries';
+import {StaffMemberConnection} from '../schemas/StaffMemberConnection';
+import {Fair} from '../schemas/Fair';
+import {GraphQLResolveInfo} from 'graphql';
+import {UserConnection} from '../schemas/UserConnection';
 
 @Resolver((of) => Organization)
 export class OrganizationResolver {
@@ -182,6 +192,61 @@ export class OrganizationResolver {
         const edges = paginatedResults.map((entity, index) => ({
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('userGroup', entity)
+        }));
+
+        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
+        return {
+            edges,
+            pageInfo
+        };
+    }
+
+    @FieldResolver(is => CreditConnection, {description: 'The credit transactions made by this organization.'})
+    async ledger(
+        @Args() args: ConnectionArgs,
+        @Root() organization: Organization
+    ): Promise<CreditConnection> {
+        args.validateArgs();
+
+        const {type, id} = convertFromGlobalId(organization.id);
+        const countResult = await getCreditsByOrganizationIdCount(id);
+
+        const totalCount = countResult[0].anzahl;
+        const bounds = args.calculateBounds(totalCount);
+
+        const paginatedResults =  await getCreditsByOrganizationIdPaginated(id, bounds);
+        const edges = paginatedResults.map((entity, index) => ({
+            cursor: offsetToCursor(bounds.startOffset + index),
+            node: convertIdToGlobalId('credit', entity)
+        }));
+
+        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
+        return {
+            edges,
+            pageInfo
+        };
+    }
+
+    @FieldResolver(is => UserConnection, {
+        description: "The entire staff of the organization.",
+    })
+    async members(
+        @Args() args: ConnectionArgs,
+        @Root() organization: Organization,
+        @Info() info: GraphQLResolveInfo
+    ): Promise<UserConnection> {
+        args.validateArgs();
+
+        const {type, id} = convertFromGlobalId(organization.id);
+        const countResult = await getUserByOrganizationIdCount(id);
+
+        const totalCount = countResult[0].anzahl;
+        const bounds = args.calculateBounds(totalCount);
+
+        const paginatedResults = await getUserByOrganizationIdPaginated(id,bounds);
+        const edges = paginatedResults.map((entity, index) => ({
+            cursor: offsetToCursor(bounds.startOffset + index),
+            node: convertIdToGlobalId('user', entity)
         }));
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
