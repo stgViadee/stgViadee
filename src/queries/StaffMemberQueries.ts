@@ -21,6 +21,27 @@ export function getStaffMemberByFairIdPaginated(fairId: string, bounds: any) {
     `);
 }
 
+export function getCompaniesByOrganizationIdCount(organizationId: string) {
+    return db.query(sql`
+        SELECT count(*) as anzahl
+        FROM
+            fm."company"
+        where "company".organization = ${organizationId}
+    `);
+}
+
+export function getCompaniesByOrganizationIdPaginated(organizationId: string, bounds: any) {
+    return db.query(sql`
+        SELECT *
+        FROM
+            fm."company"
+        where "company".organization = ${organizationId}
+            LIMIT ${bounds.limit}
+        OFFSET ${bounds.offset}
+    `);
+}
+
+
 
 
 

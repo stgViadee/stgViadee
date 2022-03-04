@@ -1,6 +1,8 @@
 import {Field, ID, ObjectType} from 'type-graphql';
 import {User} from './User';
 import {Node} from './Node';
+import {OrganizationPreferences} from './OrganizationPreferences';
+import {Licensing} from './Licensing';
 
 @ObjectType( { implements: Node} )
 export class Organization {
@@ -29,8 +31,11 @@ export class Organization {
     @Field({nullable: true})
     credits: number;
 
-    @Field({nullable: true})
+    @Field(() => OrganizationPreferences,{nullable: true})
     preferences: string;
+
+    @Field(() => [Licensing], {nullable:true})
+    licenses: [Licensing];
 
     @Field({nullable: true})
     autoExtendLicense: boolean;

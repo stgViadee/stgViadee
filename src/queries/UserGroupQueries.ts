@@ -30,6 +30,26 @@ export function getUserGroupMemberByUserGroupIdPaginated(userGroupId: string, bo
 }
 
 
+export function getUserGroupsByOrganizationIdCount(organizationId: string) {
+    return db.query(sql`
+        select count("userGroup".*) as anzahl
+        from fm."userGroup"
+        WHERE "userGroup".organization = ${organizationId}
+    `);
+}
+
+export function getUserGroupsByOrganizationIdPaginated(organizationId: string, bounds : any) {
+    return db.query(sql`
+        select "userGroup".*
+        from fm."userGroup"
+        WHERE "userGroup".organization = ${organizationId} 
+        order by "userGroup".id asc
+            LIMIT ${bounds.limit}
+        OFFSET ${bounds.offset}
+    `);
+}
+
+
 
 
 
