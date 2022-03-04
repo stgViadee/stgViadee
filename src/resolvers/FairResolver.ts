@@ -41,7 +41,6 @@ import {getMeetingByFairIdFilteredCount, getMeetingByFairIdFilteredPaginated} fr
 import {Meeting} from '../schemas/Meeting';
 import {StaffMemberConnection} from '../schemas/StaffMemberConnection';
 import {GraphQLResolveInfo} from 'graphql';
-import {StaffMemberFilter} from '../filter/StaffMemberFilter';
 import {
     getStaffMemberByFairIdCount,
     getStaffMemberByFairIdPaginated
@@ -116,6 +115,8 @@ export class FairResolver {
         };
 
     }
+
+
 
     @FieldResolver(is => Boolean, {
         description: "Does this fair open today?",

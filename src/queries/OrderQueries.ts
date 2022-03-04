@@ -10,6 +10,15 @@ export function getOrderByFairIdCount(fairId: string) {
     `);
 }
 
+export function getOrderPositionByOrderId(id: string) {
+    return db.query(sql`
+        SELECT positions
+        FROM
+            fm."order"
+        where id = ${id}
+    `);
+}
+
 export function getOrderByFairIdPaginated(fairId: string, bounds: any) {
     return db.query(sql`
         SELECT *

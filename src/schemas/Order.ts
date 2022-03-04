@@ -1,5 +1,6 @@
 import {Field, ID, ObjectType} from 'type-graphql';
 import {Node} from './Node';
+import {SerializedOrderPosition} from './SerializedOrderPosition';
 
 @ObjectType( { implements: Node} )
 export class Order {
@@ -15,8 +16,8 @@ export class Order {
     @Field({nullable: true})
     changed: Date;
 
-    @Field({nullable: true})
-    positions: string;
+    @Field(() => [SerializedOrderPosition], {nullable: true})
+    positions: [SerializedOrderPosition];
 
     @Field({nullable: true})
     currency: string;
