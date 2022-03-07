@@ -23,7 +23,7 @@ export class BoothResolver {
     @FieldResolver(is => Fair, {description: ''})
     async fair(@Root() booth: Booth): Promise<Fair> {
         const fairs = await getFairById(booth.fair)
-        return convertIdToGlobalId( 'booth', fairs[0]);
+        return convertIdToGlobalId( 'fair', fairs[0]);
     }
 
 }

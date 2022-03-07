@@ -12,8 +12,7 @@ import {TagConnection} from '../schemas/TagConnection';
 import {getTagsByOrganizationIdCount, getTagsByOrganizationIdPaginated} from '../queries/TagQueries';
 import {
     getCompaniesByOrganizationIdCount,
-    getCompaniesByOrganizationIdPaginated,
-    getStaffMemberByFairIdCount, getStaffMemberByFairIdPaginated
+    getCompaniesByOrganizationIdPaginated
 } from '../queries/StaffMemberQueries';
 import {CompanyConnection} from '../schemas/CompanyConnection';
 import {DepartmentConnection} from '../schemas/DepartmentConnection';
@@ -25,18 +24,13 @@ import {OrganizationPreferences} from '../schemas/OrganizationPreferences';
 import {getOrganizationPreferencesById} from '../queries/OrganizationPreferencesQueries';
 import {Licensing} from '../schemas/Licensing';
 import {getLicensingByOrganizationId} from '../queries/LicensingQueries';
-import {generateFilterType} from 'type-graphql-filter';
-import {FairDay} from '../schemas/FairDay';
 import {UserGroupConnection} from '../schemas/UserGroupConnection';
 import {
     getUserGroupsByOrganizationIdCount,
     getUserGroupsByOrganizationIdPaginated
 } from '../queries/UserGroupQueries';
-import {UserGroup} from '../schemas/UserGroup';
 import {CreditConnection} from '../schemas/CreditConnection';
 import {getCreditsByOrganizationIdCount, getCreditsByOrganizationIdPaginated} from '../queries/CreditQueries';
-import {StaffMemberConnection} from '../schemas/StaffMemberConnection';
-import {Fair} from '../schemas/Fair';
 import {GraphQLResolveInfo} from 'graphql';
 import {UserConnection} from '../schemas/UserConnection';
 

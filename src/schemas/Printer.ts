@@ -1,12 +1,16 @@
 import {Field, ID, ObjectType} from 'type-graphql';
 import {Node} from './Node';
+import {Fair} from './Fair';
+import {Filter} from 'type-graphql-filter';
+import {Device} from './Device';
 
 @ObjectType( { implements: Node} )
 export class Printer {
     @Field(() => ID)
     id: string;
 
-    @Field()
+    @Field(() => Fair)
+    @Filter(['eq'])
     fair: string;
 
     @Field({nullable: true})
@@ -26,7 +30,7 @@ export class Printer {
     hid: string;
 
 
-    @Field({nullable: true})
+    @Field(() => Device, {nullable: true})
     device: string;
 
     @Field()

@@ -32,6 +32,22 @@ export function getFairsByOrganizationIdPaginated(organizationId: string, bounds
     `);
 }
 
+export function getFairByIdForUserId(fairId : string, actorId : string) {
+    return db.query(sql`
+        SELECT "fair".*
+        FROM fm."fair"
+        WHERE
+            "fair".id = ${fairId} AND
+                "fair".organization IN (SELECT
+                                            "userGroup".organization
+                                        FROM
+                                            fm."userGroupMembership" INNER JOIN
+                                            fm."userGroup" ON "userGroupMembership"."userGroup" = "userGroup".id AND
+                                                              "userGroupMembership".user = ${actorId});
+    `);
+}
+
+
 
 export function getFairsByIdArray(ids: Readonly<string[]>) {
     return db.query(sql`
