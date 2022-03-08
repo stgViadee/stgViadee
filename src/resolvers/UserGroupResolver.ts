@@ -23,10 +23,13 @@ export class UserGroupResolver {
         return convertIdsToGlobalId('usergroup', userGroups);
     }
 
-    @FieldResolver(is => Fair, {description: ''})
+    @FieldResolver(is => Fair, {nullable: true, description: ''})
     async fair(@Root() userGroup: UserGroup): Promise<Maybe<Fair>> {
-        const fairs = await getFairById(userGroup.fair);
-        return convertIdToGlobalId('fair', fairs[0]);
+        if (userGroup.fair) {
+            const fairs = await getFairById(userGroup.fair);
+            return convertIdToGlobalId('fair', fairs[0]);
+        }
+        return null;
     }
 
     @FieldResolver(is => Organization, {description: ''})

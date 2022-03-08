@@ -30,6 +30,14 @@ export function getBoothByFairIdPaginated(fairId : string, bounds : any) {
     `);
 }
 
+export function getBoothsByIdArray(ids: Readonly<string[]>) {
+    return db.query(sql`
+        select *
+        from fm."booth"
+        where id = ANY (${ids}::uuid[])
+    `);
+}
+
 
 
 

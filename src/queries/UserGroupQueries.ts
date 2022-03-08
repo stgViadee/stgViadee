@@ -49,6 +49,39 @@ export function getUserGroupsByOrganizationIdPaginated(organizationId: string, b
     `);
 }
 
+export function getUserGroupsByStaffMemberIdCount(staffMemberId: string, actorId : string) {
+    return db.query(sql`
+        select count(distinct "userGroup".*) as anzahl
+        from fm."userGroupMembership" INNER JOIN
+             fm."userGroup" ON "userGroupMembership"."userGroup" = "userGroup".id INNER JOIN
+             fm."staffMember" ON "staffMember"."user" = "userGroupMembership"."user" AND
+                                 "staffMember".id = ${staffMemberId}
+        WHERE (SELECT count(*) FROM
+            ((SELECT "userGroupMembership"."userGroup" FROM fm."userGroupMembership" WHERE "userGroupMembership"."user" = "staffMember".user)
+             INTERSECT
+             (SELECT "userGroupMembership"."userGroup" FROM fm."userGroupMembership" WHERE "userGroupMembership"."user" = ${actorId})
+            ) orgIntersection) > 0
+    `);
+}
+
+export function getUserGroupsByStaffMemberIdPaginated(staffMemberId: string, actorId: string, bounds : any) {
+    return db.query(sql`
+        select distinct "userGroup".*
+        from fm."userGroupMembership" INNER JOIN
+             fm."userGroup" ON "userGroupMembership"."userGroup" = "userGroup".id INNER JOIN
+             fm."staffMember" ON "staffMember"."user" = "userGroupMembership"."user" AND
+                                 "staffMember".id = ${staffMemberId}
+        WHERE (SELECT count(*) FROM
+            ((SELECT "userGroupMembership"."userGroup" FROM fm."userGroupMembership" WHERE "userGroupMembership"."user" = "staffMember".user)
+             INTERSECT
+             (SELECT "userGroupMembership"."userGroup" FROM fm."userGroupMembership" WHERE "userGroupMembership"."user" = ${actorId})
+            ) orgIntersection) > 0
+        order by "userGroup".id asc
+            LIMIT ${bounds.limit}
+        OFFSET ${bounds.offset}
+    `);
+}
+
 
 
 

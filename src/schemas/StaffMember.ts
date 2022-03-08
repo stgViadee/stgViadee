@@ -1,16 +1,19 @@
-import {Field, ID, ObjectType} from 'type-graphql';
+import {Field, GraphQLISODateTime, ID, ObjectType} from 'type-graphql';
 import {Node} from './Node';
 import {Timeframe} from './Timeframe';
 import {GraphQLBoolean} from 'graphql';
 import {Filter} from 'type-graphql-filter';
+import {User} from './User';
+import {Fair} from './Fair';
+import {Booth} from './Booth';
 
-@ObjectType( { implements: Node} )
+@ObjectType({implements: Node})
 export class StaffMember {
 
     @Field(() => ID)
     id: string;
 
-    @Field()
+    @Field(() => Booth)
     primaryBooth: string;
 
     @Field()
@@ -23,13 +26,13 @@ export class StaffMember {
     @Field({nullable: true})
     reason: string;
 
-    @Field({nullable: true})
+    @Field(() => Booth, {nullable: true})
     currentBooth: string;
 
-    @Field()
+    @Field(() => Fair, {nullable: true})
     fair: string;
 
-    @Field({nullable: true})
+    @Field(() => User, {nullable: true})
     user: string;
 
     @Field({nullable: true})
@@ -41,7 +44,13 @@ export class StaffMember {
     @Field({nullable: true})
     hid: string;
 
-    @Field( () => [Timeframe], {nullable : true})
-    @Filter(['eq', ], () => GraphQLBoolean)
-    attendance: [Timeframe]
+    @Field(() => [Timeframe], {nullable: true})
+    @Filter(['eq',], () => GraphQLBoolean)
+    attendance: [Timeframe];
+
+    @Filter(['gt', 'gte', 'lt', 'lte'], () => GraphQLISODateTime)
+    start: Date;
+
+    @Filter(['gt', 'gte', 'lt', 'lte'], () => GraphQLISODateTime)
+    end: Date;
 }

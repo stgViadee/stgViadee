@@ -33,6 +33,49 @@ export function getMeetingByFairIdFilteredCount(fairId : string, filter: any) {
     `);
 }
 
+export function getMeetingByStaffMemberIdFilteredCount(staffMemberId : string, filter: any) {
+    return db.query(sql`
+            select count(*) as anzahl 
+            from fm.meeting INNER JOIN 
+                 fm."attendance" ON meeting.id = "attendance".meeting INNER JOIN
+                 fm."staffMember" ON "staffMember"."user" = "attendance"."user" AND 
+                                     "staffMember".id = ${staffMemberId}
+            WHERE
+                (meeting.start > ${filter.start_gt} OR COALESCE(${filter.start_gt},meeting.start) = meeting.start) AND 
+                (meeting.start >= ${filter.start_gte} OR COALESCE(${filter.start_gte},meeting.start) = meeting.start) AND
+                (meeting.start < ${filter.start_lt} OR COALESCE(${filter.start_lt},meeting.start) = meeting.start) AND
+                (meeting.start <= ${filter.start_lte} OR COALESCE(${filter.start_lte},meeting.start) = meeting.start) AND
+                (meeting.end > ${filter.end_gt} OR COALESCE(${filter.end_gt},meeting.end) = meeting.end) AND 
+                (meeting.end >= ${filter.end_gte} OR COALESCE(${filter.end_gte},meeting.end) = meeting.end) AND
+                (meeting.end < ${filter.end_lt} OR COALESCE(${filter.end_lt},meeting.end) = meeting.end) AND
+                (meeting.end <= ${filter.end_lte} OR COALESCE(${filter.end_lte},meeting.end) = meeting.end)
+
+
+    `);
+}
+
+export function getMeetingByStaffMemberIdFilteredPaginated(staffMemberId : string, filter: any, bounds : any) {
+    return db.query(sql`
+            select meeting.*
+            from fm.meeting INNER JOIN
+                 fm."attendance" ON meeting.id = "attendance".meeting INNER JOIN
+                 fm."staffMember" ON "staffMember"."user" = "attendance"."user" AND
+                                     "staffMember".id = ${staffMemberId}
+            WHERE
+                (meeting.start > ${filter.start_gt} OR COALESCE(${filter.start_gt},meeting.start) = meeting.start) AND
+                (meeting.start >= ${filter.start_gte} OR COALESCE(${filter.start_gte},meeting.start) = meeting.start) AND
+                (meeting.start < ${filter.start_lt} OR COALESCE(${filter.start_lt},meeting.start) = meeting.start) AND
+                (meeting.start <= ${filter.start_lte} OR COALESCE(${filter.start_lte},meeting.start) = meeting.start) AND
+                (meeting.end > ${filter.end_gt} OR COALESCE(${filter.end_gt},meeting.end) = meeting.end) AND
+                (meeting.end >= ${filter.end_gte} OR COALESCE(${filter.end_gte},meeting.end) = meeting.end) AND
+                (meeting.end < ${filter.end_lt} OR COALESCE(${filter.end_lt},meeting.end) = meeting.end) AND
+                (meeting.end <= ${filter.end_lte} OR COALESCE(${filter.end_lte},meeting.end) = meeting.end)
+            order by meeting."id" asc      
+            LIMIT ${bounds.limit}
+        OFFSET ${bounds.offset}
+    `);
+}
+
 export function getMeetingByFairIdFilteredPaginated(fairId : string, filter: any, bounds : any) {
     return db.query(sql`
             select meeting.*

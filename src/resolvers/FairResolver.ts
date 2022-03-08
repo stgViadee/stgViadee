@@ -348,7 +348,7 @@ export class FairResolver {
         const paginatedResults = await getStaffMemberByFairIdPaginated(id,bounds);
         const edges = paginatedResults.map((entity, index) => ({
             cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('staffmember', entity)
+            node: convertIdToGlobalId('staffMember', entity)
         }));
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);

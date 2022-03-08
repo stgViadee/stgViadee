@@ -52,7 +52,7 @@ export function getFairByIdForUserId(fairId : string, actorId : string) {
 export function getFairsByIdArray(ids: Readonly<string[]>) {
     return db.query(sql`
         select *
-        from fm.user
+        from fm.fair
         where id = ANY (${ids}::uuid[])
     `);
 }
