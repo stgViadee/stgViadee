@@ -11,6 +11,12 @@ import {Device} from '../schemas/Device';
 import {getDeviceById} from '../queries/DeviceQueries';
 import {Fair} from '../schemas/Fair';
 import {Booth} from '../schemas/Booth';
+import {FairResourceConnection} from '../schemas/FairResourceConnection';
+import {getCoveredRoomsByPrinterIdCount, getCoveredRoomsByPrinterIdPaginated} from '../queries/CoveredRoomsQueries';
+import {ProductGroupConnection} from '../schemas/ProductGroupConnection';
+import {getProductGroupByPrinterIdCount, getProductGroupByPrinterIdPaginated} from '../queries/ProductGroupQueries';
+import {PrintJobConnection} from '../schemas/PrintJobConnection';
+import {getPrintJobByPrinterIdCount, getPrintJobByPrinterIdPaginated} from '../queries/PrintJobQueries';
 
 @Resolver((of) => Printer)
 export class PrinterResolver {
@@ -66,6 +72,90 @@ export class PrinterResolver {
     async fair(@Root() printer: Printer): Promise<Fair> {
         const fairs = await getFairById(printer.fair)
         return convertIdToGlobalId( 'fair', fairs[0]);
+    }
+
+    @FieldResolver(is => FairResourceConnection, {
+        description: 'If declared, this printer will only print orders that are to be delivered to these resources.'
+    })
+    async coveredRooms(
+        @Args() args: ConnectionArgs,
+        @Root() printer: Printer
+    ): Promise<FairResourceConnection> {
+
+        const {type, id} = convertFromGlobalId(printer.id);
+
+        const countResult = await getCoveredRoomsByPrinterIdCount(id);
+
+        const totalCount = countResult[0].anzahl;
+        const bounds = args.calculateBounds(totalCount);
+
+        const paginatedResults = await getCoveredRoomsByPrinterIdPaginated(id, bounds);
+        const edges = paginatedResults.map((entity, index) => ({
+            cursor: offsetToCursor(bounds.startOffset + index),
+            node: convertIdToGlobalId('fairResource', entity)
+        }));
+
+        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
+        return {
+            edges,
+            pageInfo
+        };
+    }
+
+    @FieldResolver(is => ProductGroupConnection, {
+        description: 'If declared, this printer will only print parts of orders for which it is responsible. Other items from the order must be printed on other printers, or the entire order is not printed.'
+    })
+    async responsibilities(
+        @Args() args: ConnectionArgs,
+        @Root() printer: Printer
+    ): Promise<ProductGroupConnection> {
+        const {type, id} = convertFromGlobalId(printer.id);
+
+        const countResult = await getProductGroupByPrinterIdCount(id);
+
+        const totalCount = countResult[0].anzahl;
+        const bounds = args.calculateBounds(totalCount);
+
+        const paginatedResults = await getProductGroupByPrinterIdPaginated(id, bounds);
+        const edges = paginatedResults.map((entity, index) => ({
+            cursor: offsetToCursor(bounds.startOffset + index),
+            node: convertIdToGlobalId('productGroup', entity)
+        }));
+
+        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
+        return {
+            edges,
+            pageInfo
+        };
+    }
+
+    @FieldResolver(is => PrintJobConnection, {
+        description: 'All print jobs that this printer should be printing.'
+    })
+    async printJobs(
+        @Args() args: ConnectionArgs,
+        @Root() printer: Printer
+    ): Promise<PrintJobConnection> {
+
+        const {type, id} = convertFromGlobalId(printer.id);
+
+        const countResult = await getPrintJobByPrinterIdCount(id);
+
+        const totalCount = countResult[0].anzahl;
+        const bounds = args.calculateBounds(totalCount);
+
+        const paginatedResults = await getPrintJobByPrinterIdPaginated(id, bounds);
+        const edges = paginatedResults.map((entity, index) => ({
+            cursor: offsetToCursor(bounds.startOffset + index),
+            node: convertIdToGlobalId('printJob', entity)
+        }));
+
+        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
+        return {
+            edges,
+            pageInfo
+        };
+
     }
 
 }
