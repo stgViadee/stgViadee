@@ -1,5 +1,7 @@
 import {Field, ID, ObjectType} from 'type-graphql';
 import {Node} from './Node';
+import {Meeting} from './Meeting';
+import {User} from './User';
 
 @ObjectType( { implements: Node} )
 export class RsvpState {
@@ -10,10 +12,10 @@ export class RsvpState {
     @Field({nullable: true})
     reply: string;
 
-    @Field({nullable: true})
+    @Field(() => Meeting, {nullable: true})
     meeting: string;
 
-    @Field({nullable: true})
+    @Field(() => User, {nullable: true})
     user: string;
 
     @Field({nullable: true})
