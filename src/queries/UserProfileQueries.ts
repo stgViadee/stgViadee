@@ -20,6 +20,14 @@ export function getUserProfileByStaffMemberId(id : string) {
     `);
 }
 
+export function getUserProfileByUserId(userId : string) {
+    return db.query(sql`
+        select "userProfile".*
+        from fm."userProfile"
+        where "userProfile"."user" = ${userId}
+    `);
+}
+
 
 
 

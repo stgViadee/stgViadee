@@ -1,5 +1,6 @@
 import {Field, ObjectType} from 'type-graphql';
 import {Node} from './Node';
+import {PreferencesData} from './PreferencesData';
 
 @ObjectType( { implements: Node} )
 export class Preferences {
@@ -12,8 +13,8 @@ export class Preferences {
     @Field({nullable: true})
     version: number;
 
-    @Field({nullable: true})
-    userData: JSON;
+    @Field(() => PreferencesData, {nullable: true})
+    userData: PreferencesData;
 
     @Field({nullable: true})
     added: Date;

@@ -31,10 +31,11 @@ import {ProductGroupResolver} from './resolvers/ProductGroupResolver';
 import {ProductResolver} from './resolvers/ProductResolver';
 import {RsvpStateResolver} from './resolvers/RsvpStateResolver';
 import {StaffMemberResolver} from './resolvers/StaffMemberResolver';
+import {TagResolver} from './resolvers/TagResolver';
 
 async function main() {
     const schema = await buildSchema({
-        resolvers: [FairResolver, FairInfoResolver, StaffMemberResolver, PrinterResolver, RsvpStateResolver, ProductResolver, ProductGroupResolver, PrintJobResolver, MessageResolver, OrderResolver, LanguageResolver, ImageResolver, FairProductResolver, FairResourceResolver, DepartmentResolver, ConversationResolver, NodeResolver, OrganizationResolver, DocumentResolver, DeviceResolver, FairDayResolver, FairDeviceResolver, UserResolver, UserGroupResolver, BoothResolver, MeetingResolver, CompanyResolver],
+        resolvers: [FairResolver, FairInfoResolver, TagResolver, StaffMemberResolver, PrinterResolver, RsvpStateResolver, ProductResolver, ProductGroupResolver, PrintJobResolver, MessageResolver, OrderResolver, LanguageResolver, ImageResolver, FairProductResolver, FairResourceResolver, DepartmentResolver, ConversationResolver, NodeResolver, OrganizationResolver, DocumentResolver, DeviceResolver, FairDayResolver, FairDeviceResolver, UserResolver, UserGroupResolver, BoothResolver, MeetingResolver, CompanyResolver],
         emitSchemaFile: true,
     });
 

@@ -15,6 +15,14 @@ export function getDeviceById(id: string) {
     `);
 }
 
+export function getDeviceByUserId(userId: string) {
+    return db.query(sql`
+        select *
+        from fm."device"
+        where "device"."user" = ${userId}
+    `);
+}
+
 
 
 

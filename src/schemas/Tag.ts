@@ -1,5 +1,6 @@
 import {Field, ID, ObjectType} from 'type-graphql';
 import {Node} from './Node';
+import {Organization} from './Organization';
 
 @ObjectType( { implements: Node} )
 export class Tag {
@@ -10,7 +11,7 @@ export class Tag {
     @Field()
     name: string;
 
-    @Field()
+    @Field(() => Organization)
     organization: string;
 
     @Field({nullable: true})
