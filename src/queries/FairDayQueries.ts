@@ -6,8 +6,8 @@ export function getFairDayByFairIdFilteredCount(fairId : string, filter : any) {
     return db.query(sql`
         select count(*) as anzahl from fm."fairDay"
         where fair = ${fairId} AND
-            COALESCE(${filter.open_lte}, "fairDay".open) <= "fairDay".open AND
-            COALESCE(${filter.close_gte}, "fairDay".close) >= "fairDay".close
+            COALESCE(${filter.open_lte}, "fairDay".open) >= "fairDay".open AND
+            COALESCE(${filter.close_gte}, "fairDay".close) <= "fairDay".close
     `);
 }
 
@@ -15,8 +15,8 @@ export function getFairDayByFairIdPaginated(fairId : string, filter : any, bound
     return db.query(sql`
         select * from fm."fairDay"
         where "fairDay".fair = ${fairId} AND
-            COALESCE( ${filter.open_lte}, "fairDay".open) <= "fairDay".open AND
-            COALESCE( ${filter.close_gte}, "fairDay".close) >= "fairDay".close
+            COALESCE( ${filter.open_lte}, "fairDay".open) >= "fairDay".open AND
+            COALESCE( ${filter.close_gte}, "fairDay".close) <= "fairDay".close
         order by "fairDay".id asc
             LIMIT ${bounds.limit}
         OFFSET ${bounds.offset}

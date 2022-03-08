@@ -18,3 +18,13 @@ export function convertFromGlobalId(globalId: string) {
         id: decode(id),
     }
 }
+
+export function convertFromGlobalIds(ids: any[]) {
+    return ids.map(item => {
+        const {type, id } = fromGlobalId(item);
+        return {
+            type:type,
+            id: decode(id),
+        }
+    });
+}

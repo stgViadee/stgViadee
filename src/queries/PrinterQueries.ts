@@ -13,6 +13,14 @@ export function getPrinterById(id : string) {
     `);
 }
 
+export function getPrinterByIds(ids : Readonly<string[]>) {
+    return db.query(sql `
+        SELECT * FROM fm.printer
+        where id = ANY (${ids}::uuid[])
+    `);
+}
+
+
 export function getPrinterByFairIdCount(fairId : string) {
     return db.query(sql`
             select count(*) as anzahl from "fm"."printer"

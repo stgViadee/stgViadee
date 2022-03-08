@@ -30,6 +30,13 @@ export function getOrderByFairIdPaginated(fairId: string, bounds: any) {
     `);
 }
 
+export function getOrderByIds(ids : Readonly<string[]>) {
+    return db.query(sql `
+        SELECT * FROM fm."order"
+        where id = ANY (${ids}::uuid[])
+    `);
+}
+
 
 
 

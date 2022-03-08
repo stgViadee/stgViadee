@@ -1,13 +1,14 @@
 import {Field, ID, ObjectType} from 'type-graphql';
 import {Node} from './Node';
 import {SerializedOrderPosition} from './SerializedOrderPosition';
+import {Fair} from './Fair';
 
 @ObjectType( { implements: Node} )
 export class Order {
     @Field(() => ID)
     id: string;
 
-    @Field()
+    @Field(() => Fair)
     fair: string;
 
     @Field({nullable: true})
