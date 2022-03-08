@@ -20,7 +20,10 @@ import {Meeting} from '../schemas/Meeting';
 import {
     getMeetingByFairIdFilteredCount,
     getMeetingByFairIdFilteredPaginated,
-    getMeetingByStaffMemberIdFilteredCount, getMeetingByStaffMemberIdFilteredPaginated
+    getMeetingByStaffMemberIdFilteredCount,
+    getMeetingByStaffMemberIdFilteredPaginated,
+    isStaffMemberAttendingMeetings,
+    isStaffMemberHavingMeetingNow
 } from '../queries/MeetingQueries';
 import {offsetToCursor} from 'graphql-relay';
 import {UserGroupConnection} from '../schemas/UserGroupConnection';
@@ -31,17 +34,23 @@ import {
     getOrdersCreatedByUserIdPaginated,
     getOrdersReceivedByUserIdCount, getOrdersReceivedByUserIdPaginated
 } from '../queries/OrderQueries';
+import {getStaffMemberInUserGroupWithTypeCount} from '../queries/StaffMemberQueries';
+import {UserGroupType} from '../schemas/UserGroup';
+import {ProfileEditMode} from '../schemas/OrganizationPreferencesData';
+import {getProfileEditModeOfStaffMemberOrganization} from '../queries/OrganizationPreferencesQueries';
+import {isStaffMemberOrganizationsAdmin} from '../queries/OrganizationQueries';
+
 
 @Resolver((of) => StaffMember)
 export class StaffMemberResolver {
 
-    @FieldResolver(is => User, {description: "The user who partakes in the fair."})
+    @FieldResolver(is => User, {description: 'The user who partakes in the fair.'})
     async user(@Root() staffMember: StaffMember) {
-        const user =  await getUserById(staffMember.user);
+        const user = await getUserById(staffMember.user);
         return convertIdToGlobalId('userProfile', user[0]);
     }
 
-    @FieldResolver(is => Fair, {description: "The fair the user partakes in."})
+    @FieldResolver(is => Fair, {description: 'The fair the user partakes in.'})
     @Loader<string, Fair>(async (ids) => {  // batchLoadFn
         let result = await getFairsByIdArray(ids);
         return convertIdsToGlobalId('fair', result);
@@ -51,7 +60,7 @@ export class StaffMemberResolver {
             dataloader.load(staffMember.fair);
     }
 
-    @FieldResolver(is => Booth, {description: "The booth this user will mostly be attending."})
+    @FieldResolver(is => Booth, {description: 'The booth this user will mostly be attending.'})
     @Loader<string, Booth>(async (ids) => {  // batchLoadFn
         let result = await getBoothsByIdArray(ids);
         return convertIdsToGlobalId('booth', result);
@@ -61,7 +70,7 @@ export class StaffMemberResolver {
             dataloader.load(staffMember.primaryBooth);
     }
 
-    @FieldResolver(is => Booth, {description: "The booth the user is currently attending or will return to, if they're unavailable."})
+    @FieldResolver(is => Booth, {description: 'The booth the user is currently attending or will return to, if they\'re unavailable.'})
     @Loader<string, Booth>(async (ids) => {  // batchLoadFn
         let result = await getBoothsByIdArray(ids);
         return convertIdsToGlobalId('booth', result);
@@ -72,20 +81,20 @@ export class StaffMemberResolver {
     }
 
 
-    @FieldResolver(is => [Timeframe], {description: "The time frames during which the user will be attending the fair."})
+    @FieldResolver(is => [Timeframe], {description: 'The time frames during which the user will be attending the fair.'})
     async attendance(@Root() staffMember: StaffMember): Promise<Timeframe[]> {
-        const attendances =  await getTimeframesByStaffMemberId(convertFromGlobalId(staffMember.id).id);
+        const attendances = await getTimeframesByStaffMemberId(convertFromGlobalId(staffMember.id).id);
         return convertIdsToGlobalId('timeframe', attendances);
     }
 
-    @FieldResolver(is => UserProfile, {description: "The merged user profile data for this user at the fair they are attending."})
+    @FieldResolver(is => UserProfile, {description: 'The merged user profile data for this user at the fair they are attending.'})
     async userProfile(@Root() staffMember: StaffMember) {
-        const userProfiles =  await getUserProfileByStaffMemberId(convertFromGlobalId(staffMember.id).id);
+        const userProfiles = await getUserProfileByStaffMemberId(convertFromGlobalId(staffMember.id).id);
         return convertIdToGlobalId('userProfile', userProfiles[0]);
     }
 
     @FieldResolver(is => MeetingConnection, {
-        description: "The meetings this user attends at the fair.",
+        description: 'The meetings this user attends at the fair.',
     })
     async meetings(
         @Args() args: ConnectionArgs,
@@ -114,7 +123,7 @@ export class StaffMemberResolver {
     }
 
     @FieldResolver(is => UserGroupConnection, {
-        description: "The groups this staff member is a member of.",
+        description: 'The groups this staff member is a member of.',
     })
     async groups(
         @Args() args: ConnectionArgs,
@@ -146,7 +155,7 @@ export class StaffMemberResolver {
     }
 
     @FieldResolver(is => OrderConnection, {
-        description: "Orders this user has created.",
+        description: 'Orders this user has created.',
     })
     async ordersCreated(
         @Args() args: ConnectionArgs,
@@ -174,7 +183,7 @@ export class StaffMemberResolver {
     }
 
     @FieldResolver(is => OrderConnection, {
-        description: "Orders this user has created.",
+        description: 'Orders this user has created.',
     })
     async ordersReceived(
         @Args() args: ConnectionArgs,
@@ -201,11 +210,69 @@ export class StaffMemberResolver {
         };
     }
 
+    @FieldResolver(is => Boolean, {
+        description: 'Is this staff member allowed to place orders in the shop?',
+    })
+    async mayOrder(
+        @Root() staffMember: StaffMember
+    ): Promise<boolean> {
+        let countResult = await getStaffMemberInUserGroupWithTypeCount(convertFromGlobalId(staffMember.id).id, UserGroupType.FairBoothTeam);
+        if (countResult[0].anzahl > 0) {
+            return true;
+        }
+        countResult = await getStaffMemberInUserGroupWithTypeCount(convertFromGlobalId(staffMember.id).id, UserGroupType.FairShop);
+        if (countResult[0].anzahl > 0) {
+            return true;
+        }
+        return false;
+    }
 
+    @FieldResolver(is => Boolean, {
+        description: 'Is this staff member allowed to edit user profiles?',
+    })
+    async mayEditUserProfiles(
+        @Root() staffMember: StaffMember
+    ): Promise<boolean> {
 
+        const preferences = await getProfileEditModeOfStaffMemberOrganization(convertFromGlobalId(staffMember.id).id);
+        if (preferences[0] && preferences[0].profileeditmode === ProfileEditMode.ADMINISTRATORS_ONLY
+        ) {
+            const userMayEdit = await isStaffMemberOrganizationsAdmin(convertFromGlobalId(staffMember.id).id);
+            return userMayEdit[0].userisorganizationadmin;
+        } else {
 
+            let countResult = await getStaffMemberInUserGroupWithTypeCount(convertFromGlobalId(staffMember.id).id, UserGroupType.FairOrganizer);
+            if (countResult[0].anzahl > 0) {
+                return true;
+            }
+            countResult = await getStaffMemberInUserGroupWithTypeCount(convertFromGlobalId(staffMember.id).id, UserGroupType.FairInfoDesk);
+            if (countResult[0].anzahl > 0) {
+                return true;
+            }
 
+        }
+        return false;
+    }
 
+    @FieldResolver(is => Boolean, {
+        description: 'Does this staff member attend any meetings during this fair?'
+    })
+    async hasScheduledMeetings(
+        @Root() staffMember: StaffMember
+    ): Promise<boolean> {
+        const scheduledMeetings = await isStaffMemberAttendingMeetings(convertFromGlobalId(staffMember.id).id);
+        return scheduledMeetings[0].hasscheduledmeetings;
+    }
+
+    @FieldResolver(is => Boolean, {
+        description: 'Does this staff member attend any meetings during this fair?'
+    })
+    async hasActiveMeeting(
+        @Root() staffMember: StaffMember
+    ): Promise<boolean> {
+        const scheduledMeetings = await isStaffMemberHavingMeetingNow(convertFromGlobalId(staffMember.id).id);
+        return scheduledMeetings[0].hasmeetingnow;
+    }
 
 
 }

@@ -41,6 +41,20 @@ export function getCompaniesByOrganizationIdPaginated(organizationId: string, bo
     `);
 }
 
+export function getStaffMemberInUserGroupWithTypeCount(staffMemberId: string, userGroupType: string) {
+    return db.query(sql`
+        select count(*) as anzahl
+        from fm."staffMember" INNER JOIN
+             fm."userGroupMembership" ON "staffMember"."user" = "userGroupMembership"."user" INNER JOIN
+             fm."userGroup" ON "userGroupMembership"."userGroup" = "userGroup"."id" AND
+                               "userGroup".type = ${userGroupType} AND
+                               "userGroup".fair = "staffMember".fair
+
+        where
+            "staffMember".id = ${staffMemberId}
+    `);
+}
+
 
 
 

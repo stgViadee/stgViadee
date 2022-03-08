@@ -116,6 +116,33 @@ export function getMeetingByResourceIdPaginated(resourceId : string, bounds : an
     `);
 }
 
+export function isStaffMemberAttendingMeetings(staffMemberId : string) {
+    return db.query(sql`
+        SELECT count(*) > 0 as hasScheduledMeetings
+        FROM
+            fm.attendance INNER JOIN
+            fm."staffMember" ON attendance."user" = "staffMember"."user" INNER JOIN
+            fm."meeting" ON attendance.meeting = meeting.id INNER JOIN
+            fm."fairResource" ON meeting.resource = "fairResource".id AND
+                                 "fairResource".fair = "staffMember".fair
+        where "staffMember".id = ${staffMemberId}
+    `);
+}
+
+export function isStaffMemberHavingMeetingNow(staffMemberId : string) {
+    return db.query(sql`
+        SELECT count(*) > 0 as hasMeetingNow
+        FROM
+            fm.attendance INNER JOIN
+            fm."staffMember" ON attendance."user" = "staffMember"."user" INNER JOIN
+            fm."meeting" ON attendance.meeting = meeting.id INNER JOIN
+            fm."fairResource" ON meeting.resource = "fairResource".id AND
+                                 "fairResource".fair = "staffMember".fair
+        where "staffMember".id = ${staffMemberId} AND 
+            now() between "meeting".start AND "meeting".end
+    `);
+}
+
 
 
 
