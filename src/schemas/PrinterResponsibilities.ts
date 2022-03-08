@@ -1,5 +1,6 @@
 import {Field, ObjectType} from 'type-graphql';
 import {Node} from './Node';
+import {ProductGroup} from './ProductGroup';
 
 @ObjectType( { implements: Node} )
 export class PrinterResponsibilities {
@@ -9,7 +10,7 @@ export class PrinterResponsibilities {
     @Field()
     printer: string;
 
-    @Field()
+    @Field(() => ProductGroup)
     productGroup: string;
 
     @Field({nullable: true})

@@ -8,21 +8,15 @@ import {
     convertIdsToGlobalId,
     convertIdToGlobalId
 } from '../schemas/relay/GlobalIdHandler';
-import {getCoveredRoomsByPrinterIdCount, getCoveredRoomsByPrinterIdPaginated} from '../queries/CoveredRoomsQueries';
 import {offsetToCursor} from 'graphql-relay';
 import {generateFilterType} from 'type-graphql-filter';
 import {
-    getPrintJobByPrinterIdCount,
-    getPrintJobByPrinterIdPaginated,
     getPrintJobsByPrinterIdsCount, getPrintJobsByPrinterIdsPaginated
 } from '../queries/PrintJobQueries';
 import {Printer} from '../schemas/Printer';
-import {FairResource} from '../schemas/FairResource';
 import {Loader} from 'type-graphql-dataloader';
-import {getFairResourceByIdArray} from '../queries/FairResourceQueries';
-import {Meeting} from '../schemas/Meeting';
 import DataLoader from 'dataloader';
-import {getPrinterById, getPrinterByIds} from '../queries/PrinterQueries';
+import {getPrinterByIds} from '../queries/PrinterQueries';
 import {Order} from '../schemas/Order';
 import {getOrderByIds} from '../queries/OrderQueries';
 

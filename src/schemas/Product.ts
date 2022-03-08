@@ -1,5 +1,6 @@
 import {Field, ID, ObjectType} from 'type-graphql';
 import {Node} from './Node';
+import {ProductGroup} from './ProductGroup';
 
 @ObjectType( { implements: Node} )
 export class Product {
@@ -13,7 +14,7 @@ export class Product {
     @Field({nullable: true})
     image: string;
 
-    @Field()
+    @Field(() => ProductGroup)
     productGroup: string;
 
     @Field({nullable: true})

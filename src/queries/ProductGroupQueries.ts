@@ -26,6 +26,14 @@ export function getProductGroupByPrinterIdPaginated(printerId : string, bounds :
     `);
 }
 
+export function getProductGroupsByIdArray(ids : Readonly<string[]>) {
+    return db.query(sql`
+        select * from fm."productGroup"
+        where id = ANY (${ids}::uuid[])
+    `);
+}
+
+
 
 
 
