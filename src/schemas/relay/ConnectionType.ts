@@ -22,7 +22,7 @@ export function ConnectionType<
             nullable: true,
             description: "The items on this page.",
         })
-        nodes: any[];
+        nodes: Iterable<typeof nodeClass>;
 
         @Field(() => Int, {
             nullable: true,

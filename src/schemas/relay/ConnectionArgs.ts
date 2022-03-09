@@ -1,5 +1,5 @@
 import * as Relay from 'graphql-relay';
-import {Field, ArgsType, Maybe} from 'type-graphql';
+import {Field, ArgsType, Maybe, Int} from 'type-graphql';
 import {getOffsetWithDefault} from 'graphql-relay';
 
 @ArgsType()
@@ -16,10 +16,10 @@ export class ConnectionArgs implements Relay.ConnectionArguments {
     })
     after?: Relay.ConnectionCursor;
 
-    @Field((type) => Number, {nullable: true, description: 'Paginate first'})
+    @Field((type) => Int, {nullable: true, description: 'Paginate first'})
     first?: number;
 
-    @Field((type) => Number, {nullable: true, description: 'Paginate last'})
+    @Field((type) => Int, {nullable: true, description: 'Paginate last'})
     last?: number;
 
     public validateArgs(): void {

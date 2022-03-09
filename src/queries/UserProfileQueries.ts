@@ -1,13 +1,5 @@
 import db, {sql} from '../dbconfig/dbconfig';
 
-export function getUserById(id : any) {
-    return db.query(sql`
-        select * from fm.user
-        where id = ${id}
-    `);
-}
-
-
 export function getUserProfileByStaffMemberId(id : string) {
     return db.query(sql`
         select "userProfile".*
@@ -25,6 +17,24 @@ export function getUserProfileByUserId(userId : string) {
         select "userProfile".*
         from fm."userProfile"
         where "userProfile"."user" = ${userId}
+    `);
+}
+
+export function getUserProfileByUserIdCount(userId : string) {
+    return db.query(sql`
+        select count("userProfile".*) as anzahl
+        from fm."userProfile"
+        where "userProfile"."user" = ${userId}
+    `);
+}
+
+export function getUserProfileByUserIdPaginated(userId : string, bounds : any) {
+    return db.query(sql`
+        select "userProfile".* as anzahl
+        from fm."userProfile"
+        where "userProfile"."user" = ${userId}
+            LIMIT ${bounds.limit}
+        OFFSET ${bounds.offset}
     `);
 }
 

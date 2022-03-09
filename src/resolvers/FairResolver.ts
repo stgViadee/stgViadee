@@ -8,7 +8,6 @@ import {FairFeatures} from '../schemas/FairFeatures';
 import {FairDayConnection} from '../schemas/FairDayConnection';
 import {ConnectionArgs} from '../schemas/relay/ConnectionArgs';
 import {generateFilterType} from 'type-graphql-filter';
-import {offsetToCursor} from 'graphql-relay';
 import {BoothConnection} from '../schemas/BoothConnection';
 import {getAllFairs, getFairById} from '../queries/FairQueries';
 import {getOrganizationsByIdArray} from '../queries/OrganizationQueries';
@@ -48,6 +47,7 @@ import {OrderConnection} from '../schemas/OrderConnection';
 import {getOrderByFairIdCount, getOrderByFairIdPaginated} from '../queries/OrderQueries';
 import {FilterFairDayInput} from '../inputs/FilterFairDayInput';
 import {compileConnection} from '../schemas/relay/ConnectionBuilder';
+import {FindByIdArguments} from '../arguments/FindByIdArguments';
 
 @Resolver((of) => Fair)
 export class FairResolver {
@@ -60,8 +60,11 @@ export class FairResolver {
 
 
     @Query((returns) => Fair, {nullable: true})
-    async fair(@Arg('id') id: string): Promise<Maybe<Fair>> {
+    async fair(@Args() { id }: FindByIdArguments): Promise<Maybe<Fair>> {
+        console.log("Ich komme an " + id);
+        console.log(convertFromGlobalId(id).id);
         const fairs = await getFairById(convertFromGlobalId(id).id);
+        console.log(fairs);
         return convertIdToGlobalId('fair', fairs[0]);
     }
 

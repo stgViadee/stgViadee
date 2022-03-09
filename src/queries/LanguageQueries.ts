@@ -6,6 +6,16 @@ export function getAllLanguages() {
     `);
 }
 
+export function getLanguagesByUserProfileId(userProfileId: string) {
+    return db.query(sql `
+        select "language".* 
+        from 
+            fm."language" INNER JOIN
+            fm."userProfileLanguages" ON "userProfileLanguages".language = "language".id AND 
+                                        "userProfileLanguages"."userProfile" = ${userProfileId}
+    `);
+}
+
 
 
 

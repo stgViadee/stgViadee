@@ -1,14 +1,12 @@
-import {Arg, Args, FieldResolver, Info, Maybe, Query, Resolver, Root} from 'type-graphql';
+import {Arg, Args, FieldResolver, Query, Resolver, Root} from 'type-graphql';
 import {PrintJob} from '../schemas/PrintJob';
 import {PrintJobConnection} from '../schemas/PrintJobConnection';
 import {ConnectionArgs} from '../schemas/relay/ConnectionArgs';
 import {
     convertFromGlobalId,
     convertFromGlobalIds,
-    convertIdsToGlobalId,
-    convertIdToGlobalId
+    convertIdsToGlobalId
 } from '../schemas/relay/GlobalIdHandler';
-import {offsetToCursor} from 'graphql-relay';
 import {generateFilterType} from 'type-graphql-filter';
 import {
     getPrintJobsByPrinterIdsCount, getPrintJobsByPrinterIdsPaginated

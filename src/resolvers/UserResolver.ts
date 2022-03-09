@@ -14,21 +14,19 @@ import {Preferences} from '../schemas/Preferences';
 import {getPreferencesById} from '../queries/PreferencesQueries';
 import {Device} from '../schemas/Device';
 import {getDeviceByUserId} from '../queries/DeviceQueries';
-import {UserProfile} from '../schemas/UserProfile';
-import {getUserProfileByUserId} from '../queries/UserProfileQueries';
+import {
+    getUserProfileByUserIdCount,
+    getUserProfileByUserIdPaginated
+} from '../queries/UserProfileQueries';
 import {OrganizationConnection} from '../schemas/OrganizationConnection';
 import {ConnectionArgs} from '../schemas/relay/ConnectionArgs';
-import {getFairProductByFairIdCount, getFairProductByFairIdPaginated} from '../queries/FairProductQueries';
-import {offsetToCursor} from 'graphql-relay';
-import {generateFilterType} from 'type-graphql-filter';
-import {FairDay} from '../schemas/FairDay';
 import {FindOrganizationInput} from '../inputs/FindOrganizationInput';
 import {
-    getOrganizationById,
     getOrganizationByUserIdForActorCount,
     getOrganizationByUserIdForActorPaginated
 } from '../queries/OrganizationQueries';
 import {compileConnection} from '../schemas/relay/ConnectionBuilder';
+import {UserProfileConnection} from '../schemas/UserProfileConnection';
 
 @Resolver((of) => User)
 export class UserResolver {
@@ -117,14 +115,26 @@ export class UserResolver {
         return convertIdsToGlobalId('device', devices);
     }
 
-    @FieldResolver(is => [UserProfile], {
+    @FieldResolver(is => UserProfileConnection, {
         description: "The profiles of this user.",
     })
     async profiles(
+        @Args() args: ConnectionArgs,
         @Root() user: User
-    ): Promise<UserProfile[]> {
-        const profiles = await getUserProfileByUserId(convertFromGlobalId(user.id).id);
-        return convertIdsToGlobalId(' userProfile', profiles);
+    ): Promise<UserProfileConnection> {
+
+        args.validateArgs();
+
+        const {type, id} = convertFromGlobalId(user.id);
+
+        const countResult = await getUserProfileByUserIdCount(id);
+
+        const totalCount = countResult[0].anzahl;
+        const bounds = args.calculateBounds(totalCount);
+
+        const paginatedResults = await getUserProfileByUserIdPaginated(id, bounds);
+        return compileConnection('userProfile', paginatedResults, bounds, args, totalCount);
+
     }
 
     @FieldResolver(is => OrganizationConnection, {
