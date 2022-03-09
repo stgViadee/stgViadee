@@ -17,6 +17,7 @@ import {ProductGroupConnection} from '../schemas/ProductGroupConnection';
 import {getProductGroupByPrinterIdCount, getProductGroupByPrinterIdPaginated} from '../queries/ProductGroupQueries';
 import {PrintJobConnection} from '../schemas/PrintJobConnection';
 import {getPrintJobByPrinterIdCount, getPrintJobByPrinterIdPaginated} from '../queries/PrintJobQueries';
+import {compileConnection} from '../schemas/relay/ConnectionBuilder';
 
 @Resolver((of) => Printer)
 export class PrinterResolver {
@@ -46,18 +47,7 @@ export class PrinterResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getPrinterByFairIdPaginated(id, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('printer', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('printer', paginatedResults, bounds, args, totalCount);
     }
 
     @FieldResolver((returns) => Device, { nullable:true, description: 'The device this printer is associated with.' })
@@ -92,18 +82,7 @@ export class PrinterResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getCoveredRoomsByPrinterIdPaginated(id, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('fairResource', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('fairResource', paginatedResults, bounds, args, totalCount);
     }
 
     @FieldResolver(is => ProductGroupConnection, {
@@ -121,18 +100,7 @@ export class PrinterResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getProductGroupByPrinterIdPaginated(id, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('productGroup', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('productGroup', paginatedResults, bounds, args, totalCount);
     }
 
     @FieldResolver(is => PrintJobConnection, {
@@ -151,18 +119,7 @@ export class PrinterResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getPrintJobByPrinterIdPaginated(id, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('printJob', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('printJob', paginatedResults, bounds, args, totalCount);
 
     }
 

@@ -11,6 +11,7 @@ import {
     getMeetingByResouceIdCount, getMeetingByResourceIdPaginated
 } from '../queries/MeetingQueries';
 import {FairResolver} from './FairResolver';
+import {compileConnection} from '../schemas/relay/ConnectionBuilder';
 
 @Resolver((of) => FairResource)
 export class FairResourceResolver {
@@ -51,18 +52,7 @@ export class FairResourceResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getMeetingByResourceIdPaginated(id,bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('meeting', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('meeting', paginatedResults, bounds, args, totalCount);
     }
 
 }

@@ -12,6 +12,7 @@ import {ConnectionArgs} from '../schemas/relay/ConnectionArgs';
 import {offsetToCursor} from 'graphql-relay';
 import {PrintJobConnection} from '../schemas/PrintJobConnection';
 import {getPrintJobByOrderIdCount, getPrintJobByOrderIdPaginated} from '../queries/PrintJobQueries';
+import {compileConnection} from '../schemas/relay/ConnectionBuilder';
 
 @Resolver(of => Order)
 export class OrderResolver {
@@ -56,18 +57,7 @@ export class OrderResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults =  await getPrintJobByOrderIdPaginated(id, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('printJob', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('printJob', paginatedResults, bounds, args, totalCount);
     }
 
 

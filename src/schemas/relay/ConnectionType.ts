@@ -1,5 +1,5 @@
 import * as Relay from "graphql-relay";
-import { ObjectType, Field, ClassType } from "type-graphql";
+import {ObjectType, Field, ClassType, Int} from 'type-graphql';
 import {PageInfo} from './PageInfo';
 
 type ExtractNodeType<EdgeType> = EdgeType extends Relay.Edge<infer NodeType>
@@ -23,6 +23,12 @@ export function ConnectionType<
             description: "The items on this page.",
         })
         nodes: any[];
+
+        @Field(() => Int, {
+            nullable: true,
+            description: "Count of all items",
+        })
+        totalCount: number;
 
     }
 

@@ -14,6 +14,7 @@ import {
 } from '../queries/FairProductAvailabilityQueries';
 import {getFairProductById} from '../queries/FairProductQueries';
 import {GraphQLString} from 'graphql';
+import {compileConnection} from '../schemas/relay/ConnectionBuilder';
 
 @Resolver((of) => FairProduct)
 export class FairProductResolver {
@@ -56,18 +57,7 @@ export class FairProductResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getFairProductAvailabilitiesByFairProductIdPaginated(id,  bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('fairProductAvailability', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('fairProductAvailability', paginatedResults, bounds, args, totalCount);
 
     }
 

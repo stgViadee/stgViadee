@@ -33,6 +33,7 @@ import {CreditConnection} from '../schemas/CreditConnection';
 import {getCreditsByOrganizationIdCount, getCreditsByOrganizationIdPaginated} from '../queries/CreditQueries';
 import {GraphQLResolveInfo} from 'graphql';
 import {UserConnection} from '../schemas/UserConnection';
+import {compileConnection} from '../schemas/relay/ConnectionBuilder';
 
 @Resolver((of) => Organization)
 export class OrganizationResolver {
@@ -61,18 +62,7 @@ export class OrganizationResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults =  await getFairsByOrganizationIdPaginated(id, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('fair', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('fair', paginatedResults, bounds, args, totalCount);
     }
 
     @FieldResolver(is => TagConnection, {
@@ -90,18 +80,7 @@ export class OrganizationResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults =  await getTagsByOrganizationIdPaginated(id, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('tag', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('tag', paginatedResults, bounds, args, totalCount);
     }
 
     @FieldResolver(is => CompanyConnection, {
@@ -120,18 +99,7 @@ export class OrganizationResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults =  await getCompaniesByOrganizationIdPaginated(id, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('company', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('company', paginatedResults, bounds, args, totalCount);
     }
 
     @FieldResolver(is => DepartmentConnection, {
@@ -150,18 +118,7 @@ export class OrganizationResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults =  await getDepartmentsByOrganizationIdPaginated(id, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('department', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('department', paginatedResults, bounds, args, totalCount);
     }
 
     @FieldResolver(is => OrganizationPreferences, {description: ''})
@@ -192,18 +149,7 @@ export class OrganizationResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults =  await getUserGroupsByOrganizationIdPaginated(id, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('userGroup', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('userGroup', paginatedResults, bounds, args, totalCount);
     }
 
     @FieldResolver(is => CreditConnection, {description: 'The credit transactions made by this organization.'})
@@ -220,18 +166,7 @@ export class OrganizationResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults =  await getCreditsByOrganizationIdPaginated(id, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('credit', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('credit', paginatedResults, bounds, args, totalCount);
     }
 
     @FieldResolver(is => UserConnection, {
@@ -251,18 +186,7 @@ export class OrganizationResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getUserByOrganizationIdPaginated(id,bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('user', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('document', paginatedResults, bounds, args, totalCount);
     }
 
 

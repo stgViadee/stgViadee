@@ -13,6 +13,7 @@ import {
 import {getFairById} from '../queries/FairQueries';
 import {getOrganizationById} from '../queries/OrganizationQueries';
 import {convertFromGlobalId, convertIdsToGlobalId, convertIdToGlobalId} from '../schemas/relay/GlobalIdHandler';
+import {compileConnection} from '../schemas/relay/ConnectionBuilder';
 
 @Resolver((of) => UserGroup)
 export class UserGroupResolver {
@@ -46,18 +47,7 @@ export class UserGroupResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getUserGroupMemberByUserGroupIdPaginated(convertFromGlobalId(userGroup.id).id, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('userconnection', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('user', paginatedResults, bounds, args, totalCount);
 
     }
 

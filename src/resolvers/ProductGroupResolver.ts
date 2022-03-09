@@ -7,6 +7,7 @@ import {convertFromGlobalId, convertIdToGlobalId} from '../schemas/relay/GlobalI
 import {ProductGroup} from '../schemas/ProductGroup';
 import {ProductConnection} from '../schemas/ProductConnection';
 import {getProductByProductGroupIdCount, getProductByProductGroupIdPaginated} from '../queries/ProductQueries';
+import {compileConnection} from '../schemas/relay/ConnectionBuilder';
 
 @Resolver((of) => ProductGroup)
 export class ProductGroupResolver {
@@ -25,18 +26,7 @@ export class ProductGroupResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getProductByProductGroupIdPaginated(convertFromGlobalId(productGroup.id).id, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('product', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('product', paginatedResults, bounds, args, totalCount);
 
     }
 

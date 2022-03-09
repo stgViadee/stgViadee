@@ -19,6 +19,7 @@ import DataLoader from 'dataloader';
 import {getPrinterByIds} from '../queries/PrinterQueries';
 import {Order} from '../schemas/Order';
 import {getOrderByIds} from '../queries/OrderQueries';
+import {compileConnection} from '../schemas/relay/ConnectionBuilder';
 
 @Resolver((of) => PrintJob)
 export class PrintJobResolver {
@@ -55,19 +56,7 @@ export class PrintJobResolver {
         const bounds = args.calculateBounds(totalCount);
 
         let paginatedResults = await getPrintJobsByPrinterIdsPaginated(ids, userId, bounds);
-
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('printJob', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('printJob', paginatedResults, bounds, args, totalCount);
 
     }
 

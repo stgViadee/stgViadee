@@ -36,6 +36,7 @@ import {UserGroupType} from '../schemas/UserGroup';
 import {ProfileEditMode} from '../schemas/OrganizationPreferencesData';
 import {getProfileEditModeOfStaffMemberOrganization} from '../queries/OrganizationPreferencesQueries';
 import {isStaffMemberOrganizationsAdmin} from '../queries/OrganizationQueries';
+import {compileConnection} from '../schemas/relay/ConnectionBuilder';
 
 
 @Resolver((of) => StaffMember)
@@ -107,18 +108,7 @@ export class StaffMemberResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getMeetingByStaffMemberIdFilteredPaginated(id, filter, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('meeting', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('meeting', paginatedResults, bounds, args, totalCount);
     }
 
     @FieldResolver(is => UserGroupConnection, {
@@ -141,18 +131,7 @@ export class StaffMemberResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getUserGroupsByStaffMemberIdPaginated(id, userId, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('userGroup', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('userGroup', paginatedResults, bounds, args, totalCount);
     }
 
     @FieldResolver(is => OrderConnection, {
@@ -171,18 +150,7 @@ export class StaffMemberResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getOrdersCreatedByUserIdPaginated(staffMember.user, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('order', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('order', paginatedResults, bounds, args, totalCount);
     }
 
     @FieldResolver(is => OrderConnection, {
@@ -201,18 +169,7 @@ export class StaffMemberResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getOrdersReceivedByUserIdPaginated(staffMember.user, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('order', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('order', paginatedResults, bounds, args, totalCount);
     }
 
     @FieldResolver(is => Boolean, {

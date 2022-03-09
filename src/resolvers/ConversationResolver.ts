@@ -10,6 +10,7 @@ import {generateFilterType} from 'type-graphql-filter';
 import {getConversationsByUserIdFiltered, getConversationsByUserIdFilteredCount} from '../queries/ConversationQueries';
 import {MessageConnection} from '../schemas/MessageConnection';
 import {getMessageByConversationId, getMessageByConversationIdCount} from '../queries/MessageQueries';
+import {compileConnection} from '../schemas/relay/ConnectionBuilder';
 
 @Resolver((of) => Conversation)
 export class ConversationResolver {
@@ -51,7 +52,8 @@ export class ConversationResolver {
         return {
             edges,
             pageInfo,
-            nodes
+            nodes,
+            totalCount
         };
 
     }
@@ -85,18 +87,7 @@ export class ConversationResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getMessageByConversationId(id,  bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('message', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('message', paginatedResults, bounds, args, totalCount);
 
     }
 

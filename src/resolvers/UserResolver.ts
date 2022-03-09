@@ -28,6 +28,7 @@ import {
     getOrganizationByUserIdForActorCount,
     getOrganizationByUserIdForActorPaginated
 } from '../queries/OrganizationQueries';
+import {compileConnection} from '../schemas/relay/ConnectionBuilder';
 
 @Resolver((of) => User)
 export class UserResolver {
@@ -148,18 +149,7 @@ export class UserResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getOrganizationByUserIdForActorPaginated(id, filter, currentUserId, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('organization', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('organization', paginatedResults, bounds, args, totalCount);
 
     }
 

@@ -47,6 +47,7 @@ import {
 import {OrderConnection} from '../schemas/OrderConnection';
 import {getOrderByFairIdCount, getOrderByFairIdPaginated} from '../queries/OrderQueries';
 import {FilterFairDayInput} from '../inputs/FilterFairDayInput';
+import {compileConnection} from '../schemas/relay/ConnectionBuilder';
 
 @Resolver((of) => Fair)
 export class FairResolver {
@@ -103,18 +104,7 @@ export class FairResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults =  await getFairDayByFairIdPaginated(id, filter, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('fairday', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('fairDay', paginatedResults, bounds, args, totalCount);
     }
 
 
@@ -142,18 +132,7 @@ export class FairResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults =  await getBoothByFairIdPaginated(id, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('booth', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('booth', paginatedResults, bounds, args, totalCount);
     }
 
 
@@ -173,18 +152,7 @@ export class FairResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getFairResourceByFairIdFilteredPaginated(id, filter, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('fairresource', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('fairResource', paginatedResults, bounds, args, totalCount);
     }
 
     @FieldResolver(is => FairInfoConnection, {
@@ -204,18 +172,7 @@ export class FairResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getFairInfoByFairIdFilteredPaginated(id, filter, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('fairinfo', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('fairInfo', paginatedResults, bounds, args, totalCount);
 
     }
 
@@ -235,18 +192,7 @@ export class FairResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getFairProductByFairIdPaginated(id, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('fairproduct', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('fairProduct', paginatedResults, bounds, args, totalCount);
 
     }
 
@@ -266,19 +212,7 @@ export class FairResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getPrinterByFairIdPaginated(id, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('printer', entity)
-        }));
-
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('printer', paginatedResults, bounds, args, totalCount);
     }
 
     @FieldResolver(is => FairDeviceConnection, {
@@ -300,18 +234,7 @@ export class FairResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getFairDeviceByFairIdPaginated(id, userId, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('fairdevice', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('fairDevice', paginatedResults, bounds, args, totalCount);
     }
 
     @FieldResolver(is => MeetingConnection, {
@@ -331,18 +254,7 @@ export class FairResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getMeetingByFairIdFilteredPaginated(id, filter, bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('meeting', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('meeting', paginatedResults, bounds, args, totalCount);
     }
 
     @FieldResolver(is => StaffMemberConnection, {
@@ -362,18 +274,7 @@ export class FairResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getStaffMemberByFairIdPaginated(id,bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('staffMember', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('staffMember', paginatedResults, bounds, args, totalCount);
     }
 
     @FieldResolver(is => OrderConnection, {
@@ -392,18 +293,7 @@ export class FairResolver {
         const bounds = args.calculateBounds(totalCount);
 
         const paginatedResults = await getOrderByFairIdPaginated(id,bounds);
-        const edges = paginatedResults.map((entity, index) => ({
-            cursor: offsetToCursor(bounds.startOffset + index),
-            node: convertIdToGlobalId('order', entity)
-        }));
-        const nodes = edges.map(edge => edge.node);
-
-        const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
-        return {
-            edges,
-            pageInfo,
-            nodes
-        };
+        return compileConnection('order', paginatedResults, bounds, args, totalCount);
 
     }
 
