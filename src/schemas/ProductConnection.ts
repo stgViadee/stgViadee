@@ -9,5 +9,6 @@ export class ProductEdge extends EdgeType("product", Product) {}
 @ObjectType()
 export class ProductConnection extends ConnectionType<ProductEdge>(
     "product",
-    ProductEdge
+    ProductEdge,
+    Product
 ) {}

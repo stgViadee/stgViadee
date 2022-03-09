@@ -29,11 +29,13 @@ export class ProductGroupResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('product', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
 
     }

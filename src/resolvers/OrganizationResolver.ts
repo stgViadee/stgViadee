@@ -53,6 +53,7 @@ export class OrganizationResolver {
         @Root() organization: Organization
     ): Promise<FairConnection> {
         args.validateArgs();
+
         const {type, id} = convertFromGlobalId(organization.id);
         const countResult = await getFairsByOrganizationIdCount(id);
 
@@ -64,11 +65,13 @@ export class OrganizationResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('fair', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
     }
 
@@ -91,11 +94,13 @@ export class OrganizationResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('tag', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
     }
 
@@ -119,11 +124,13 @@ export class OrganizationResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('company', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
     }
 
@@ -147,11 +154,13 @@ export class OrganizationResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('department', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
     }
 
@@ -187,11 +196,13 @@ export class OrganizationResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('userGroup', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
     }
 
@@ -213,11 +224,13 @@ export class OrganizationResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('credit', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
     }
 
@@ -242,17 +255,19 @@ export class OrganizationResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('user', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
     }
 
 
     @Query((returns) => [Organization], { nullable: true })
-    async getOrganizations(): Promise<Organization[]> {
+    async organizations(): Promise<Organization[]> {
         const organizations = await getAllOrganizations();
         return convertIdsToGlobalId('organization', organizations);
     }

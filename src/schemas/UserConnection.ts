@@ -9,5 +9,6 @@ export class UserEdge extends EdgeType("user", User) {}
 @ObjectType()
 export class UserConnection extends ConnectionType<UserEdge>(
     "user",
-    UserEdge
+    UserEdge,
+    User
 ) {}

@@ -9,7 +9,7 @@ type ExtractNodeType<EdgeType> = EdgeType extends Relay.Edge<infer NodeType>
 export function ConnectionType<
     EdgeType extends Relay.Edge<NodeType>,
     NodeType = ExtractNodeType<EdgeType>
-    >(nodeName: string, edgeClass: ClassType<EdgeType>) {
+    >(nodeName: string, edgeClass: ClassType<EdgeType>, nodeClass: ClassType) {
     @ObjectType(`${nodeName}Connection`, { isAbstract: true })
     abstract class Connection implements Relay.Connection<NodeType> {
         @Field((type) => PageInfo)
@@ -17,7 +17,15 @@ export function ConnectionType<
 
         @Field((type) => [edgeClass])
         edges: EdgeType[];
+
+        @Field(() => [nodeClass], {
+            nullable: true,
+            description: "The items on this page.",
+        })
+        nodes: any[];
+
     }
+
 
     return Connection;
 }

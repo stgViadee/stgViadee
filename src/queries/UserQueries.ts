@@ -13,6 +13,30 @@ export function getUserById(id : any) {
     `);
 }
 
+export function getUserByIdForActor(id : string, actorId : string) {
+    return db.query(sql`
+        select * from fm.user
+        where id = ${id} AND
+            (SELECT count(*) FROM
+            ((SELECT "userGroupMembership"."userGroup" FROM fm."userGroupMembership" WHERE "userGroupMembership"."user" = "user".id)
+            INTERSECT
+            (SELECT "userGroupMembership"."userGroup" FROM fm."userGroupMembership" WHERE "userGroupMembership"."user" = ${actorId})
+            ) orgIntersection) > 0
+    `);
+}
+
+export function getUserByEmailForActor(email : string, actorId : string) {
+    return db.query(sql`
+        select * from fm.user
+        where email = ${email} AND
+            (SELECT count(*) FROM
+            ((SELECT "userGroupMembership"."userGroup" FROM fm."userGroupMembership" WHERE "userGroupMembership"."user" = "user".id)
+            INTERSECT
+            (SELECT "userGroupMembership"."userGroup" FROM fm."userGroupMembership" WHERE "userGroupMembership"."user" = ${actorId})
+            ) orgIntersection) > 0
+    `);
+}
+
 export function getUserAttendingMeetingByMeetingId(meetingId : string) {
     return db.query(sql`
         SELECT "user".*

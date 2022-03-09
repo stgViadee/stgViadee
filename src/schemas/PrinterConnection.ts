@@ -9,5 +9,6 @@ export class PrinterEdge extends EdgeType("printer", Printer) {}
 @ObjectType()
 export class PrinterConnection extends ConnectionType<PrinterEdge>(
     "printer",
-    PrinterEdge
+    PrinterEdge,
+    Printer
 ) {}

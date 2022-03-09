@@ -9,5 +9,6 @@ export class FairDayEdge extends EdgeType("fairDay", FairDay) {}
 @ObjectType()
 export class FairDayConnection extends ConnectionType<FairDayEdge>(
     "fairDay",
-    FairDayEdge
+    FairDayEdge,
+    FairDay
 ) {}

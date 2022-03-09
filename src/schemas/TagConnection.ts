@@ -9,5 +9,6 @@ export class TagEdge extends EdgeType("tag", Tag) {}
 @ObjectType()
 export class TagConnection extends ConnectionType<TagEdge>(
     "tag",
-    TagEdge
+    TagEdge,
+    Tag
 ) {}

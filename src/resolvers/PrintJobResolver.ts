@@ -60,11 +60,13 @@ export class PrintJobResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('printJob', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
 
     }

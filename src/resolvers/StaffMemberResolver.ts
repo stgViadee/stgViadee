@@ -16,10 +16,7 @@ import {getUserProfileByStaffMemberId} from '../queries/UserProfileQueries';
 import {MeetingConnection} from '../schemas/MeetingConnection';
 import {ConnectionArgs} from '../schemas/relay/ConnectionArgs';
 import {generateFilterType} from 'type-graphql-filter';
-import {Meeting} from '../schemas/Meeting';
 import {
-    getMeetingByFairIdFilteredCount,
-    getMeetingByFairIdFilteredPaginated,
     getMeetingByStaffMemberIdFilteredCount,
     getMeetingByStaffMemberIdFilteredPaginated,
     isStaffMemberAttendingMeetings,
@@ -114,11 +111,13 @@ export class StaffMemberResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('meeting', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
     }
 
@@ -146,11 +145,13 @@ export class StaffMemberResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('userGroup', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
     }
 
@@ -174,11 +175,13 @@ export class StaffMemberResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('order', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
     }
 
@@ -202,11 +205,13 @@ export class StaffMemberResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('order', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
     }
 

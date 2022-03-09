@@ -9,5 +9,6 @@ export class OrderEdge extends EdgeType("order", Order) {}
 @ObjectType()
 export class OrderConnection extends ConnectionType<OrderEdge>(
     "order",
-    OrderEdge
+    OrderEdge,
+    Order
 ) {}

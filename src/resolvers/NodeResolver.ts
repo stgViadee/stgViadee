@@ -11,6 +11,7 @@ import {getFairById} from '../queries/FairQueries';
 import { Node } from '../schemas/Node'
 import {convertFromGlobalId, convertIdToGlobalId} from '../schemas/relay/GlobalIdHandler';
 import {getUserById} from '../queries/UserQueries';
+import {getOrganizationById} from '../queries/OrganizationQueries';
 
 @Resolver(() => Node)
 export class NodeResolver {
@@ -37,6 +38,11 @@ export class NodeResolver {
             const userResult = await getUserById(id);
             return convertIdToGlobalId('user', userResult[0]);
         }
+        if (type === 'organization') {
+            const organizationResult = await getOrganizationById(id);
+            return convertIdToGlobalId('organization', organizationResult[0]);
+        }
+        console.log('Typ ' + type + ' noch NICHT in NodeResolver implementiert!')
 
         return null;
     }

@@ -9,5 +9,6 @@ export class FairDeviceEdge extends EdgeType("fairDevice", FairDevice) {}
 @ObjectType()
 export class FairDeviceConnection extends ConnectionType<FairDeviceEdge>(
     "fairDevice",
-    FairDeviceEdge
+    FairDeviceEdge,
+    FairDevice
 ) {}

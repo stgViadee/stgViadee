@@ -9,5 +9,6 @@ export class ConversationEdge extends EdgeType("conversation", Conversation) {}
 @ObjectType()
 export class ConversationConnection extends ConnectionType<ConversationEdge>(
     "conversation",
-    ConversationEdge
+    ConversationEdge,
+    Conversation
 ) {}

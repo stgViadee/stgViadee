@@ -24,11 +24,13 @@ export class DocumentResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('document', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
     }
 

@@ -9,5 +9,6 @@ export class DepartmentEdge extends EdgeType("department", Department) {}
 @ObjectType()
 export class DepartmentConnection extends ConnectionType<DepartmentEdge>(
     "department",
-    DepartmentEdge
+    DepartmentEdge,
+    Department
 ) {}

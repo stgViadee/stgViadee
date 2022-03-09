@@ -45,11 +45,13 @@ export class ConversationResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('conversation', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
 
     }
@@ -87,11 +89,13 @@ export class ConversationResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('message', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
 
     }

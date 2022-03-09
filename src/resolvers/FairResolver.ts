@@ -8,7 +8,6 @@ import {FairFeatures} from '../schemas/FairFeatures';
 import {FairDayConnection} from '../schemas/FairDayConnection';
 import {ConnectionArgs} from '../schemas/relay/ConnectionArgs';
 import {generateFilterType} from 'type-graphql-filter';
-import {FairDay} from '../schemas/FairDay';
 import {offsetToCursor} from 'graphql-relay';
 import {BoothConnection} from '../schemas/BoothConnection';
 import {getAllFairs, getFairById} from '../queries/FairQueries';
@@ -47,6 +46,7 @@ import {
 } from '../queries/StaffMemberQueries';
 import {OrderConnection} from '../schemas/OrderConnection';
 import {getOrderByFairIdCount, getOrderByFairIdPaginated} from '../queries/OrderQueries';
+import {FilterFairDayInput} from '../inputs/FilterFairDayInput';
 
 @Resolver((of) => Fair)
 export class FairResolver {
@@ -93,7 +93,7 @@ export class FairResolver {
     async days(
         @Args() args: ConnectionArgs,
         @Root() fair: Fair,
-        @Arg('filter', generateFilterType(FairDay)) filter: any) {
+        @Arg('filter', {nullable: true}) filter: FilterFairDayInput) {
 
         args.validateArgs();
         const {type, id} = convertFromGlobalId(fair.id);
@@ -107,13 +107,14 @@ export class FairResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('fairday', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
-
     }
 
 
@@ -145,11 +146,13 @@ export class FairResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('booth', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
     }
 
@@ -174,11 +177,13 @@ export class FairResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('fairresource', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
     }
 
@@ -203,11 +208,13 @@ export class FairResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('fairinfo', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
 
     }
@@ -232,11 +239,13 @@ export class FairResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('fairproduct', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
 
     }
@@ -262,10 +271,13 @@ export class FairResolver {
             node: convertIdToGlobalId('printer', entity)
         }));
 
+        const nodes = edges.map(edge => edge.node);
+
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
     }
 
@@ -292,11 +304,13 @@ export class FairResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('fairdevice', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
     }
 
@@ -321,11 +335,13 @@ export class FairResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('meeting', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
     }
 
@@ -350,11 +366,13 @@ export class FairResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('staffMember', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
     }
 
@@ -378,11 +396,13 @@ export class FairResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('order', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
 
     }

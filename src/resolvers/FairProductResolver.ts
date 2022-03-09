@@ -60,11 +60,13 @@ export class FairProductResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('fairProductAvailability', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
 
     }

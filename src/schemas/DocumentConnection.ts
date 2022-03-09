@@ -9,5 +9,6 @@ export class DocumentEdge extends EdgeType("document", Document) {}
 @ObjectType()
 export class DocumentConnection extends ConnectionType<DocumentEdge>(
     "document",
-    DocumentEdge
+    DocumentEdge,
+    Document
 ) {}

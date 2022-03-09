@@ -9,5 +9,6 @@ export class StaffMemberEdge extends EdgeType("staffMember", StaffMember) {}
 @ObjectType()
 export class StaffMemberConnection extends ConnectionType<StaffMemberEdge>(
     "staffMember",
-    StaffMemberEdge
+    StaffMemberEdge,
+    StaffMember
 ) {}

@@ -9,5 +9,6 @@ export class UserGroupEdge extends EdgeType("userGroup", UserGroup) {}
 @ObjectType()
 export class UserGroupConnection extends ConnectionType<UserGroupEdge>(
     "userGroup",
-    UserGroupEdge
+    UserGroupEdge,
+    UserGroup
 ) {}

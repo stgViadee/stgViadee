@@ -9,5 +9,6 @@ export class MessageEdge extends EdgeType("message", Message) {}
 @ObjectType()
 export class MessageConnection extends ConnectionType<MessageEdge>(
     "message",
-    MessageEdge
+    MessageEdge,
+    Message
 ) {}

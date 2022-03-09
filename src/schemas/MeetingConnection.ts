@@ -9,5 +9,6 @@ export class MeetingEdge extends EdgeType("meeting", Meeting) {}
 @ObjectType()
 export class MeetingConnection extends ConnectionType<MeetingEdge>(
     "meeting",
-    MeetingEdge
+    MeetingEdge,
+    Meeting
 ) {}

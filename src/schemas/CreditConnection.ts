@@ -9,5 +9,6 @@ export class CreditEdge extends EdgeType("credit", Credit) {}
 @ObjectType()
 export class CreditConnection extends ConnectionType<CreditEdge>(
     "credit",
-    CreditEdge
+    CreditEdge,
+    Credit
 ) {}

@@ -55,11 +55,13 @@ export class FairResourceResolver {
             cursor: offsetToCursor(bounds.startOffset + index),
             node: convertIdToGlobalId('meeting', entity)
         }));
+        const nodes = edges.map(edge => edge.node);
 
         const pageInfo = args.compilePageInfo(edges, totalCount, bounds);
         return {
             edges,
-            pageInfo
+            pageInfo,
+            nodes
         };
     }
 

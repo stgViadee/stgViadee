@@ -9,5 +9,6 @@ export class CompanyEdge extends EdgeType("company", Company) {}
 @ObjectType()
 export class CompanyConnection extends ConnectionType<CompanyEdge>(
     "company",
-    CompanyEdge
+    CompanyEdge,
+    Company
 ) {}
